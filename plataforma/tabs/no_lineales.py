@@ -147,13 +147,12 @@ def render() -> None:
          "Diferencia con Newton": f"{lib['max_diferencia_absoluta']:.1e}" if lib else "—"},
     ]))
 
-    c1, c2 = st.columns(2)
-    with c1:
-        ui.grafica(graficas.fig_funcion_critica(d["Qd"], b, g, y_c, [h["x_k"][0] for h in esc["historial"]] + esc["x_sol"][:1]), "fig_fcrit")
-    with c2:
-        series = {"Newton 2×2": {"cambio": [h["norma_cambio"] for h in nw["historial"]], "residual": [h["norma_residual_nuevo"] for h in nw["historial"]]},
-                  "Punto fijo 2×2": {"cambio": [h["norma_cambio"] for h in pf["historial"]], "residual": [h["norma_residual"] for h in pf["historial"]]}}
-        ui.grafica(graficas.fig_convergencia(series), "fig_conv")
+    # Gráficas en ancho completo y una debajo de otra: en media columna los títulos de las subgráficas se pisaban.
+    st.markdown("#### Gráficas")
+    ui.grafica(graficas.fig_funcion_critica(d["Qd"], b, g, y_c, [h["x_k"][0] for h in esc["historial"]] + esc["x_sol"][:1]), "fig_fcrit")
+    series = {"Newton 2×2": {"cambio": [h["norma_cambio"] for h in nw["historial"]], "residual": [h["norma_residual_nuevo"] for h in nw["historial"]]},
+              "Punto fijo 2×2": {"cambio": [h["norma_cambio"] for h in pf["historial"]], "residual": [h["norma_residual"] for h in pf["historial"]]}}
+    ui.grafica(graficas.fig_convergencia(series), "fig_conv")
     st.caption("El cambio entre iteraciones ‖Δx‖ y el residual ‖F‖ se evalúan por separado; **ninguno es el error verdadero** de y_c.")
     _tablas_historial(nw, pf, esc)
 

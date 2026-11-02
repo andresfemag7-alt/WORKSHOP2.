@@ -70,7 +70,7 @@ def fig_funcion_critica(Q, b, g, y_sol, y_hist) -> go.Figure:
 def fig_convergencia(series: dict) -> go.Figure:
     """series: {nombre: {'cambio': [...], 'residual': [...]}} — dos paneles: cambio y residual, escala log."""
     from plotly.subplots import make_subplots
-    fig = make_subplots(rows=1, cols=2, subplot_titles=("Cambio entre iteraciones ‖Δx‖∞", "Residual ‖F(x)‖∞ (escalado)"))
+    fig = make_subplots(rows=1, cols=2, subplot_titles=("Cambio entre iteraciones ‖Δx‖∞", "Residual ‖F(x)‖∞ (escalado)"), horizontal_spacing=0.14)
     colores = [PALETA["primario"], PALETA["acento"], PALETA["ok"]]
     for i, (nom, s) in enumerate(series.items()):
         it = list(range(1, len(s["cambio"]) + 1))
@@ -78,9 +78,12 @@ def fig_convergencia(series: dict) -> go.Figure:
                                  line=dict(color=colores[i % 3])), row=1, col=1)
         fig.add_trace(go.Scatter(x=it, y=np.maximum(s["residual"], 1e-18), mode="lines+markers", name=nom, legendgroup=nom,
                                  showlegend=False, line=dict(color=colores[i % 3])), row=1, col=2)
-    fig.update_yaxes(type="log", gridcolor="#E3EAEF")
+    fig.update_yaxes(type="log", gridcolor="#E3EAEF", exponentformat="power", automargin=True)  # 10^-3, no 1m/1µ/1n
     fig.update_xaxes(title_text="Iteración", gridcolor="#E3EAEF")
-    fig.update_layout(**layout_grafica("Convergencia (el cambio NO es el error verdadero)", "", "", alto=380))
+    # Los títulos de subgráfica ocupan la franja superior: la leyenda se pasa DEBAJO del eje x.
+    fig.update_layout(**layout_grafica("Convergencia (el cambio NO es el error verdadero)", "", "", alto=500,
+                                       margin=dict(l=60, r=20, t=125, b=115),
+                                       legend=dict(orientation="h", yanchor="top", y=-0.27, xanchor="left", x=0)))
     fig.update_layout(xaxis=dict(title="Iteración"), yaxis=dict(title="‖Δx‖∞ (m, m/s)", type="log"),
                       xaxis2=dict(title="Iteración"), yaxis2=dict(title="‖F‖∞ (adim.)", type="log"))
     return fig

@@ -41,15 +41,18 @@ ICONOS = {"lineales": "🏗️", "no_lineales": "🌊", "lagrange": "📈", "new
 PLOTLY_BASE = dict(
     template="plotly_white",
     font=dict(family=FUENTE, size=13, color=PALETA["texto"]),
-    margin=dict(l=60, r=20, t=50, b=55),
-    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0),
+    # t=110: franja superior reservada. El título va arriba del todo y la leyenda justo encima del área
+    # de trazado, de modo que ya no compiten por el mismo espacio (antes t=50 y se superponían).
+    margin=dict(l=60, r=20, t=110, b=55),
+    legend=dict(orientation="h", yanchor="bottom", y=1.03, xanchor="left", x=0),
     hovermode="closest",
 )
 
 
 def layout_grafica(titulo: str, x: str, y: str, alto: int = 420, **extra) -> dict:
     d = dict(PLOTLY_BASE)
-    d.update(title=dict(text=titulo, font=dict(size=15)), height=alto,
+    d.update(title=dict(text=titulo, font=dict(size=15), x=0, xanchor="left", y=0.97, yanchor="top", yref="container"),
+             height=alto,
              xaxis=dict(title=x, gridcolor="#E3EAEF", zeroline=False),
              yaxis=dict(title=y, gridcolor="#E3EAEF", zeroline=False))
     d.update(extra)
