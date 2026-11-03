@@ -3,7 +3,7 @@
 APP_TITULO = "Métodos numéricos aplicados a una captación y derivación hídrica"
 APP_SUBTITULO = (
     "Algoritmos Numéricos · Ingeniería Civil - Aplicación de los métodos a la ingeniería - "
-    "Sebastian Molina & Andrés Mdroñero. - "
+    "Sebastian Molina & Andrés Madroñero. - "
     "Docente: Mg.Mario Hernan Lopez Arbelaez")
 
 ADVERTENCIA_MODELO = (
