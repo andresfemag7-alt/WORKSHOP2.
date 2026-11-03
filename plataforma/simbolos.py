@@ -7,6 +7,8 @@ import re
 
 _MAPA = {"Q_total": r"$Q_{total}$", "Q_d": r"$Q_d$", "y_c": r"$y_c$", "V_c": r"$V_c$"}
 _PAT = re.compile(r"(?<![\w$\\])(Q_total|Q_d|y_c|V_c)(?!\w)")
+_WIDGETS = ("markdown", "caption", "success", "info", "warning", "error", "metric", "button", "header", "subheader",
+            "number_input", "selectbox", "radio", "slider", "checkbox", "expander")
 _SUP = str.maketrans("0123456789-+", "⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺")
 
 
@@ -55,9 +57,30 @@ def instalar() -> None:
             return orig(self, *a, **k)
         return w
 
-    for nombre in ("markdown", "caption", "success", "info", "warning", "error", "metric", "button", "header", "subheader",
-                   "number_input", "selectbox", "radio", "slider", "checkbox", "expander"):
+    for nombre in _WIDGETS:
         orig = getattr(DG, nombre, None)
         if orig is not None:
             setattr(DG, nombre, _envolver(orig, nombre))
     DG._simbolos_ok = True
+
+    # `st.button`, `st.markdown`… son métodos ya enlazados al cargar Streamlit: parchear la clase no los alcanza.
+    import streamlit as st
+
+    def _envolver_modulo(orig, nombre):
+        @functools.wraps(orig)
+        def w(*a, **k):
+            try:
+                if not (nombre == "markdown" and k.get("unsafe_allow_html")):
+                    if a:
+                        a = (sim(a[0]),) + tuple(a[1:])
+                    elif isinstance(k.get("label"), str):
+                        k["label"] = sim(k["label"])
+            except Exception:  # pragma: no cover
+                pass
+            return orig(*a, **k)
+        return w
+
+    for nombre in _WIDGETS:
+        orig = getattr(st, nombre, None)
+        if orig is not None:
+            setattr(st, nombre, _envolver_modulo(orig, nombre))
