@@ -7,27 +7,21 @@ APP_SUBTITULO = (
     "Docente: Mg.Mario Hernan Lopez Arbelaez")
 
 ADVERTENCIA_MODELO = (
-    "**Modelo académico conceptual — no es un diseño listo para construir.** Un proyecto real de captación requeriría "
-    "topografía, hidrología de diseño y análisis de crecientes, estudios geotécnicos, materiales, cargas completas "
-    "(peso propio, sobrecargas, viento, sismo), normativa aplicable, análisis estructural detallado, factores de "
-    "seguridad y revisión por profesionales competentes. La profundidad crítica es un parámetro del régimen de flujo: "
+    "**Modelo académico, no un diseño para construir.** Un proyecto real exigiría topografía, hidrología de diseño, "
+    "estudios geotécnicos, cargas completas (peso propio, viento, sismo), normativa y factores de seguridad. "
+    "Aquí la armadura soporta solo el peso del agua, y la profundidad crítica es un parámetro del flujo: "
     "no garantiza estabilidad, borde libre ni seguridad del canal.")
 
 CONTEXTO = (
-    "**Caso integrador.** Se capta agua del río Colorado y se deriva por un canal rectangular de concreto hacia una "
-    "planta de tratamiento; en un tramo sobre una depresión, el canal se apoya en una armadura de acero. "
-    "Cada pestaña resuelve una etapa con un método:")
+    "**Caso integrador.** Se capta agua del río Colorado (estación USGS 09380000) y se deriva por un canal rectangular "
+    "de concreto hacia una planta de tratamiento. En un tramo sobre una depresión, el canal se apoya en una armadura "
+    "de acero tipo Warren. Cada pestaña resuelve una etapa con un método numérico, y su resultado alimenta a la siguiente:")
 
 FLUJO_PASOS = [
-
-    ("3·4 Interpolación", r"nivel $\color{#0B5C8E}{\mathbf{h}}$ → caudal total $\color{#0B5C8E}{\mathbf{Q_{total}}}$ (curva de descarga)"),
-
-    ("2 No lineales", r"$\color{#0B5C8E}{\mathbf{Q_d = \alpha \cdot Q_{total}}}$ → profundidad crítica $\color{#0B5C8E}{\mathbf{y_c}}$"),
-
-    ("1 Lineales", r"$\color{#0B5C8E}{\mathbf{y_c}}$ → peso del agua → cargas nodales → fuerzas internas y reacciones"),
-
+    ("3·4 Interpolación", r"con el nivel del río $\color{#0B5C8E}{\mathbf{h}}$ se estima el caudal total $\color{#0B5C8E}{\mathbf{Q_{total}}}$ (Lagrange, Newton y spline)"),
+    ("2 No lineales", r"se deriva una fracción $\color{#0B5C8E}{\mathbf{Q_d = \\alpha \\cdot Q_{total}}}$ y se calcula la profundidad crítica $\color{#0B5C8E}{\mathbf{y_c}}$ (punto fijo y Newton-Raphson)"),
+    ("1 Lineales", r"con $\color{#0B5C8E}{\mathbf{y_c}}$ se obtiene el peso del agua, las cargas en los nudos, las fuerzas en cada barra y las reacciones (eliminación de Gauss)"),
 ]
-
 
 
 TABS = {
