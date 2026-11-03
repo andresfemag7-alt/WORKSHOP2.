@@ -19,7 +19,7 @@ CONTEXTO = (
 
 FLUJO_PASOS = [
     ("3·4 Interpolación", r"con el nivel del río $\color{#0B5C8E}{\mathbf{h}}$ se estima el caudal total $\color{#0B5C8E}{\mathbf{Q_{total}}}$ (Lagrange, Newton y spline)"),
-    ("2 No lineales", r"se deriva una fracción $\color{#0B5C8E}{\mathbf{Q_d = \\alpha \\cdot Q_{total}}}$ y se calcula la profundidad crítica $\color{#0B5C8E}{\mathbf{y_c}}$ (punto fijo y Newton-Raphson)"),
+    ("2 No lineales", r"se deriva una fracción del caudal, $\color{#0B5C8E}{\mathbf{Q_d = \alpha \cdot Q_{total}}}$, y se calcula la profundidad crítica $\color{#0B5C8E}{\mathbf{y_c}}$ (punto fijo y Newton-Raphson)"),
     ("1 Lineales", r"con $\color{#0B5C8E}{\mathbf{y_c}}$ se obtiene el peso del agua, las cargas en los nudos, las fuerzas en cada barra y las reacciones (eliminación de Gauss)"),
 ]
 
