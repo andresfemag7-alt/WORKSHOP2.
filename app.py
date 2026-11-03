@@ -44,7 +44,7 @@ with panel:
             simbolo = f"<b>{SIM[clave]}</b>"
             it = estado.obtener(clave)
             if not it:
-                filas.append({"Símbolo": simbolo, "Valor": "—", "Unidad": "—", "Calculado por": "sin publicar", "Hora": "—", "Estado": "⏳ pendiente"})
+                filas.append({"Símbolo": simbolo, "Valor": "—", "Unidad": "—", "Calculado por": "sin publicar", "Hora": "—", "Estado": "pendiente"})
                 continue
             viejo = clave != "q_total" and q is not None and not estado.iguales({"Q": it["entradas"].get("Q_total", -1.0)}, {"Q": q["valor"]})
             filas.append({"Símbolo": simbolo, "Valor": ui.fmt(it["valor"], 4), "Unidad": it["unidad"], "Calculado por": it["modulo"],
