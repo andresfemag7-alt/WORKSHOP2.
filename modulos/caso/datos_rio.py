@@ -45,7 +45,7 @@ _REGISTROS = [
     {"id": "N3", "nivel_ft": 9.00, "caudal_cfs": 11000, "rol": "nodo"},
     {"id": "N4", "nivel_ft": 10.00, "caudal_cfs": 15000, "rol": "nodo"},
 ]
-PROCEDENCIA_NODOS = ""
+
 
 OBS_VALIDACION_VERIFICADA = {
     "id": "V1", "nivel_ft": 8.07, "caudal_cfs": 7870, "rol": "validacion",
