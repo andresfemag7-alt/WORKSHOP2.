@@ -42,8 +42,8 @@ def _armadura() -> None:
                 "Solo se considera el **peso del agua**.")
     usar_flujo = False
     if yc_item is not None:
-        fuente = st.radio("Origen del peso del agua", ["Desde el flujo integrado (y_c de la pestaña 2)", "Carga manual"],
-                          horizontal=True, key="lin_fuente")
+        fuente = st.radio("Origen del peso del agua", ["Desde el flujo integrado ($y_c$ de la pestaña 2)", "Carga manual"],
+                          horizontal=True, key="lin_fuente_v2")
         usar_flujo = fuente.startswith("Desde")
     else:
         st.info(textos.MSG_SIN_FLUJO + " Mientras tanto se usa la carga manual.")
