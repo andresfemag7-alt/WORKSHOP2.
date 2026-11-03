@@ -39,7 +39,6 @@ def render() -> None:
                     "borde libre, estabilidad ni seguridad del canal.")
 
     st.markdown("#### Entradas")
-    st.caption("Use el **punto (.)** como separador decimal. Ejemplo: 0.15 y 6e-8 (o 6x10^-8).")
     q_item = estado.obtener("q_total")
     if q_item is not None:
         modo = st.radio("Origen del caudal total", [MODO_FLUJO, MODO_MANUAL], horizontal=True, key="nl_modo")
@@ -75,6 +74,7 @@ def render() -> None:
     tol_r = ui.tolerancia(d3, "Tolerancia del residual", 1e-10, "nl_tolr_txt",
                           "‖F‖∞ del sistema ESCALADO (adimensional, error relativo de Fr² y de Q). Escriba por ejemplo 6x10^-8 o 6e-8.")
     max_it = int(d4.number_input("Máx. iteraciones", 1, 2000, 200, 10, key="nl_maxit"))
+    st.caption("En las tolerancias use el **punto (.)** como separador decimal. Ejemplo: 6e-8 o 6x10^-8.")
 
     ui.tabla_variables([
         {"simbolo": "Q_total", "descripcion": "Caudal total del río", "valor": ui.fmt(Qt, 4), "unidad": "m³/s", "proc": proc_q},
