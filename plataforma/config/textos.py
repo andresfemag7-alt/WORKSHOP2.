@@ -20,11 +20,11 @@ CONTEXTO = (
 
 FLUJO_PASOS = [
 
-    ("3·4 Interpolación", "nivel h → caudal total Q_total (curva de descarga)"),
+    ("3·4 Interpolación", r"nivel $\color{#0B5C8E}{\mathbf{h}}$ → caudal total $\color{#0B5C8E}{\mathbf{Q_{total}}}$ (curva de descarga)"),
 
-    ("2 No lineales", "Q_d = α·Q_total → profundidad crítica y_c"),
+    ("2 No lineales", r"$\color{#0B5C8E}{\mathbf{Q_d = \alpha \cdot Q_{total}}}$ → profundidad crítica $\color{#0B5C8E}{\mathbf{y_c}}$"),
 
-    ("1 Lineales", "y_c → peso del agua → cargas nodales → fuerzas internas y reacciones"),
+    ("1 Lineales", r"$\color{#0B5C8E}{\mathbf{y_c}}$ → peso del agua → cargas nodales → fuerzas internas y reacciones"),
 
 ]
 
