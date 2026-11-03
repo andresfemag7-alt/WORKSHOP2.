@@ -39,15 +39,18 @@ with panel:
     with st.expander(" Flujo de datos entre pestañas (qué valor viene de dónde)", expanded=False):
         q = estado.obtener("q_total")
         filas = []
-        for clave, simbolo in (("q_total", "Q_total"), ("q_d", "Q_d"), ("y_c", "y_c")):
+        SIM = {"q_total": "<i>Q</i><sub>total</sub>", "q_d": "<i>Q</i><sub>d</sub>", "y_c": "<i>y</i><sub>c</sub>"}
+        for clave in ("q_total", "q_d", "y_c"):
+            simbolo = f"<b>{SIM[clave]}</b>"
             it = estado.obtener(clave)
             if not it:
-                filas.append({"Símbolo": simbolo, "Valor": "—", "Unidad": "", "Calculado por": "sin publicar", "Hora": "", "Estado": "pendiente"})
+                filas.append({"Símbolo": simbolo, "Valor": "—", "Unidad": "—", "Calculado por": "sin publicar", "Hora": "—", "Estado": "⏳ pendiente"})
                 continue
             viejo = clave != "q_total" and q is not None and not estado.iguales({"Q": it["entradas"].get("Q_total", -1.0)}, {"Q": q["valor"]})
             filas.append({"Símbolo": simbolo, "Valor": ui.fmt(it["valor"], 4), "Unidad": it["unidad"], "Calculado por": it["modulo"],
-                          "Hora": it["hora"], "Estado": " desactualizado (Q_total cambió)" if viejo else "vigente"})
-        ui.tabla(pd.DataFrame(filas))
+                          "Hora": it["hora"],
+                          "Estado": f"⚠️ desactualizado (<i>Q</i><sub>total</sub> cambió)" if viejo else "✅ vigente"})
+        ui.tabla_html(filas)
         st.caption("Cada pestaña funciona también de forma independiente. Un valor solo se publica si el cálculo convergió y no es una extrapolación; "
                    "si cambia un valor aguas arriba, los de abajo se marcan como desactualizados hasta recalcularlos.")
         if st.button("Restablecer valores publicados", key="reset_flujo"):
