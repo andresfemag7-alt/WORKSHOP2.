@@ -33,7 +33,7 @@ def bonito(texto: str) -> str:
 
 
 def instalar() -> None:
-    """Aplica `sim` al texto de markdown/caption/success/info/warning/error/metric (una sola vez)."""
+    """Aplica `sim` al texto de textos y etiquetas de widgets (una sola vez)."""
     try:
         from streamlit.delta_generator import DeltaGenerator as DG
     except Exception:  # pragma: no cover
@@ -55,7 +55,8 @@ def instalar() -> None:
             return orig(self, *a, **k)
         return w
 
-    for nombre in ("markdown", "caption", "success", "info", "warning", "error", "metric"):
+    for nombre in ("markdown", "caption", "success", "info", "warning", "error", "metric", "button", "header", "subheader",
+                   "number_input", "selectbox", "radio", "slider", "checkbox", "expander"):
         orig = getattr(DG, nombre, None)
         if orig is not None:
             setattr(DG, nombre, _envolver(orig, nombre))
