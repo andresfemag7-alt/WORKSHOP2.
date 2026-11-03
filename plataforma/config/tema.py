@@ -88,3 +88,22 @@ table.vars td {{ padding:6px 8px; border-bottom:1px solid {PALETA['borde']}; ver
 
 def aplicar_tema() -> None:
     st.markdown(CSS, unsafe_allow_html=True)
+
+
+@st.cache_data(show_spinner=False)
+def _fondo_b64(clave: str) -> str:
+    import base64
+    from pathlib import Path
+    ruta = Path(__file__).resolve().parents[2] / "assets" / "fondos" / f"{clave}.jpg"
+    return base64.b64encode(ruta.read_bytes()).decode()
+
+
+def fondo_tab(clave: str) -> None:
+    """Imagen de fondo de la página (pestaña) `clave`, con velo claro para mantener legible el contenido."""
+    st.markdown(
+        f'<div id="fondo-{clave}"></div><style>'
+        f'div[data-baseweb="tab-panel"]:has(#fondo-{clave}) {{'
+        f'background-image: linear-gradient(rgba(246,249,251,.82), rgba(246,249,251,.82)), '
+        f'url("data:image/jpeg;base64,{_fondo_b64(clave)}");'
+        f'background-size: cover; background-position: center top; background-repeat: no-repeat; '
+        f'border-radius: 8px; padding: 1rem;}}</style>', unsafe_allow_html=True)
