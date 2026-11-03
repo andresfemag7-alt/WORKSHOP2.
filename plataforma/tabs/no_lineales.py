@@ -65,6 +65,7 @@ def render() -> None:
     Qd = Qt * alpha
 
     st.markdown("**Parámetros del método iterativo**")
+    st.caption("En las tolerancias use el **punto (.)** como separador decimal. Ejemplo: 6.5e-8 o 6.5x10^-8.")
     d1, d2, d3, d4 = st.columns(4)
     y0 = d1.number_input("Profundidad inicial y₀ (m)", 0.01, 100.0, 1.0, 0.1, key="nl_y0",
                          help="Debe ser positiva. V₀ se obtiene de la continuidad: V₀ = Q_d/(b·y₀).")
@@ -74,7 +75,6 @@ def render() -> None:
     tol_r = ui.tolerancia(d3, "Tolerancia del residual", 1e-10, "nl_tolr_txt",
                           "‖F‖∞ del sistema ESCALADO (adimensional, error relativo de Fr² y de Q). Escriba por ejemplo 6x10^-8 o 6e-8.")
     max_it = int(d4.number_input("Máx. iteraciones", 1, 2000, 200, 10, key="nl_maxit"))
-    st.caption("En las tolerancias use el **punto (.)** como separador decimal. Ejemplo: 6e-8 o 6x10^-8.")
 
     ui.tabla_variables([
         {"simbolo": "Q_total", "descripcion": "Caudal total del río", "valor": ui.fmt(Qt, 4), "unidad": "m³/s", "proc": proc_q},
