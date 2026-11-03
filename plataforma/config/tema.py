@@ -88,22 +88,24 @@ table.vars td {{ padding:6px 8px; border-bottom:1px solid {PALETA['borde']}; ver
 
 def aplicar_tema() -> None:
     st.markdown(CSS, unsafe_allow_html=True)
+    fondo_app()
 
 
 @st.cache_data(show_spinner=False)
-def _fondo_b64(clave: str) -> str:
+def _collage_b64() -> str:
     import base64
     from pathlib import Path
-    ruta = Path(__file__).resolve().parents[2] / "assets" / "fondos" / f"{clave}.jpg"
+    ruta = Path(__file__).resolve().parents[2] / "assets" / "collage.jpg"
     return base64.b64encode(ruta.read_bytes()).decode()
 
 
-def fondo_tab(clave: str) -> None:
-    """Imagen de fondo de la página (pestaña) `clave`, con velo claro para mantener legible el contenido."""
+def fondo_app() -> None:
+    """Collage simétrico 2x2 (lineales, no lineales, Lagrange, Newton+Spline) como fondo fijo de toda la app."""
     st.markdown(
-        f'<div id="fondo-{clave}"></div><style>'
-        f'div[data-baseweb="tab-panel"]:has(#fondo-{clave}), div[role="tabpanel"]:has(#fondo-{clave}) {{'
-        f'background-image: linear-gradient(rgba(246,249,251,.82), rgba(246,249,251,.82)), '
-        f'url("data:image/jpeg;base64,{_fondo_b64(clave)}");'
-        f'background-size: cover; background-position: center top; background-repeat: no-repeat; '
-        f'border-radius: 8px; padding: 1rem;}}</style>', unsafe_allow_html=True)
+        '<style>'
+        '.stApp {background-image: linear-gradient(rgba(246,249,251,.15), rgba(246,249,251,.15)), '
+        f'url("data:image/jpeg;base64,{_collage_b64()}");'
+        'background-size: 100% 100%; background-position: center; background-attachment: fixed; background-repeat: no-repeat;}'
+        '[data-testid="stHeader"] {background: transparent;}'
+        '.block-container {background: rgba(255,255,255,.80); border-radius: 10px; padding: 1.4rem 1.6rem 2rem 1.6rem;}'
+        '</style>', unsafe_allow_html=True)

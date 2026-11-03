@@ -33,7 +33,6 @@ def ficha(clave: str) -> None:
 
 def cabecera_tab(clave: str) -> None:
     t = textos.TABS[clave]
-    tema.fondo_tab(clave)
     st.subheader(t["titulo"])
     st.caption(t["descripcion"])
     ficha(clave)
