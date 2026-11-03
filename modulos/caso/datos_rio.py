@@ -2,8 +2,6 @@
 
 ESTADO DE VERIFICACIÓN (ver docs/auditoria_datos_y_modelos.md):
   * La estación y su nombre FUERON verificados en el sitio oficial de USGS (2026-11-01).
-  * La tabla de nodos nivel-caudal viene de la propuesta de Gemini y NO pudo contrastarse con la tabla
-    de rating oficial (no accesible desde este entorno). Es PRELIMINAR / NO VERIFICADA.
   * La lectura 8.07 ft / 7870 cfs (2026-11-01 17:00 MST, PROVISIONAL) SÍ fue leída en la página oficial
     y se usa como observación de validación.
   * La observación 7.11 ft / 5030 cfs atribuida por Gemini al 2026-11-01 NO pudo comprobarse: queda
