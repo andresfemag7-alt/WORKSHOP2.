@@ -53,7 +53,7 @@ def render() -> None:
 
     st.markdown("#### Resultado")
     m1, m2, m3 = st.columns(3)
-    m1.metric("Q_total estimado", f"{Qhat:.4f} m³/s")
+    m1.metric("$Q_{total}$ estimado", f"{Qhat:.4f} m³/s")
     m2.metric("En pies cúbicos por segundo", f"{Qhat / dr.CFS_A_M3S:,.0f} cfs")
     m3.metric("Grado del polinomio", f"{r['grado']}")
     if r["extrapolando"]:
@@ -118,7 +118,7 @@ def render() -> None:
 
     st.markdown("#### Interpretación y límites")
     st.markdown(
-        f"- Para h = {h_c:.4f} m el polinomio de Lagrange estima Q_total ≈ **{Qhat:.2f} m³/s**.\n"
+        f"- Para h = {h_c:.4f} m el polinomio de Lagrange estima $Q_{{total}}$ ≈ **{Qhat:.2f} m³/s**.\n"
         "- Reproducir los nodos **no garantiza** exactitud entre ellos; un polinomio de grado alto puede oscilar (fenómeno de Runge).\n"
         "- Una curva de descarga cambia con el tiempo (sedimentación, erosión, actualización del rating) y el caudal en Lees Ferry está "
         "regulado por la presa de Glen Canyon: no es un régimen natural.\n"
@@ -131,7 +131,7 @@ def render() -> None:
         estado.publicar("q_total", Qhat, "m³/s", "Pestaña 3 · Lagrange", {"h": h_c},
                         f"h = {h_c:.4f} m · nodos: {datos.get('procedencia', '—')}")
         estado.invalidar("q_d")
-        st.success("Q_total publicado. La pestaña 2 lo usará para calcular Q_d y la profundidad crítica.")
+        st.success("$Q_{total}$ publicado. La pestaña 2 lo usará para calcular $Q_d$ y la profundidad crítica.")
     if not vig:
         st.caption("Recalcule para poder publicar (las entradas cambiaron).")
     elif not puede:

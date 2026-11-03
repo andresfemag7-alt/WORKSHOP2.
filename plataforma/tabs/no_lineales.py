@@ -14,8 +14,8 @@ from .. import componentes as ui
 from .. import estado, graficas, simbolos
 from ..config import textos
 
-MODO_FLUJO = "Usar Q_total publicado (pestaña 3 o 4)"
-MODO_MANUAL = "Ingresar Q_total manualmente"
+MODO_FLUJO = "Usar $Q_{total}$ publicado (pestaña 3 o 4)"
+MODO_MANUAL = "Ingresar $Q_{total}$ manualmente"
 
 
 def render() -> None:
@@ -32,10 +32,10 @@ def render() -> None:
             "incógnitas reales *(y, V)* — no se fabrican incógnitas:")
         st.latex(r"f_1=V^{2}-g\,y=0\ (Fr=1),\qquad f_2=b\,y\,V-Q_d=0\ (\text{continuidad})")
         st.markdown(
-            "Se escalan (F₁/(g·y_ref), F₂/Q_d) para que las tolerancias sean **adimensionales**. *Punto fijo simultáneo:* "
-            "y⁽ᵏ⁺¹⁾ = Q_d/(b·V⁽ᵏ⁾), V⁽ᵏ⁺¹⁾ = √(g·y⁽ᵏ⁾), ambos con el vector anterior; el radio espectral de la iteración en la raíz es 1/√2 ≈ 0.71 < 1, "
+            "Se escalan (F₁/(g·y_ref), F₂/$Q_d$) para que las tolerancias sean **adimensionales**. *Punto fijo simultáneo:* "
+            "y⁽ᵏ⁺¹⁾ = $Q_d$/(b·V⁽ᵏ⁾), V⁽ᵏ⁺¹⁾ = √(g·y⁽ᵏ⁾), ambos con el vector anterior; el radio espectral de la iteración en la raíz es 1/√2 ≈ 0.71 < 1, "
             "así que converge (linealmente). *Newton:* J·Δx = −F sin invertir J. El caso escalar se resuelve con el mismo Newton (n = 1).")
-        st.markdown("**Advertencia:** y_c es solo el tirante del régimen crítico. No es el tirante normal ni el de operación y **no garantiza** "
+        st.markdown("**Advertencia:** $y_c$ es solo el tirante del régimen crítico. No es el tirante normal ni el de operación y **no garantiza** "
                     "borde libre, estabilidad ni seguridad del canal.")
 
     st.markdown("#### Entradas")
@@ -43,11 +43,11 @@ def render() -> None:
     if q_item is not None:
         modo = st.radio("Origen del caudal total", [MODO_FLUJO, MODO_MANUAL], horizontal=True, key="nl_modo")
     else:
-        st.info(textos.MSG_SIN_FLUJO + " Puede trabajar de forma independiente con Q_total manual.")
+        st.info(textos.MSG_SIN_FLUJO + " Puede trabajar de forma independiente con $Q_{total}$ manual.")
         modo = MODO_MANUAL
     if modo == MODO_FLUJO:
         Qt = q_item["valor"]
-        st.markdown(f"Q_total = **{Qt:.4f} m³/s** · calculado por *{q_item['modulo']}* a las {q_item['hora']} ({q_item['detalle']}).")
+        st.markdown(f"$Q_{{total}}$ = **{Qt:.4f} m³/s** · calculado por *{q_item['modulo']}* a las {q_item['hora']} ({q_item['detalle']}).")
         proc_q = "calculado"
     else:
         Qt = st.number_input("Q_total (m³/s)", 0.001, 1e5, 222.85, 1.0, key="nl_Qt_manual", format="%.4f",
@@ -122,10 +122,10 @@ def render() -> None:
     y_c, V_c = nw["x_sol"]
     comp = hy.comprobaciones_hidraulicas(y_c, d["Qd"], b, g)
     m1, m2, m3, m4 = st.columns(4)
-    m1.metric("Profundidad crítica y_c", f"{y_c:.5f} m")
-    m2.metric("Velocidad crítica V_c", f"{V_c:.4f} m/s")
+    m1.metric("Profundidad crítica $y_c$", f"{y_c:.5f} m")
+    m2.metric("Velocidad crítica $V_c$", f"{V_c:.4f} m/s")
     m3.metric("Froude (comprobación)", f"{comp['froude']:.6f}")
-    m4.metric("Área mojada b·y_c", f"{comp['area_mojada_m2']:.4f} m²")
+    m4.metric("Área mojada $b \\cdot y_c$", f"{comp['area_mojada_m2']:.4f} m²")
     st.markdown(f'<div class="caja-res">Newton (sistema 2×2): {simbolos.bonito(nw["motivo_parada"])}</div>', unsafe_allow_html=True)
 
     ui.tabla(pd.DataFrame([
@@ -159,20 +159,20 @@ def render() -> None:
     series = {"Newton 2×2": {"cambio": [h["norma_cambio"] for h in nw["historial"]], "residual": [h["norma_residual_nuevo"] for h in nw["historial"]]},
               "Punto fijo 2×2": {"cambio": [h["norma_cambio"] for h in pf["historial"]], "residual": [h["norma_residual"] for h in pf["historial"]]}}
     ui.grafica(graficas.fig_convergencia(series), "fig_conv")
-    st.caption("El cambio entre iteraciones ‖Δx‖ y el residual ‖F‖ se evalúan por separado; **ninguno es el error verdadero** de y_c.")
+    st.caption("El cambio entre iteraciones ‖Δx‖ y el residual ‖F‖ se evalúan por separado; **ninguno es el error verdadero** de $y_c$.")
     _tablas_historial(nw, pf, esc)
 
     st.markdown("#### Interpretación")
     st.markdown(
-        f"- Para Q_d = {d['Qd']:.2f} m³/s en un canal de b = {b:g} m, el flujo es crítico a y_c = **{y_c:.3f} m** con V_c = {V_c:.2f} m/s. "
+        f"- Para $Q_d$ = {d['Qd']:.2f} m³/s en un canal de b = {b:g} m, el flujo es crítico a $y_c$ = **{y_c:.3f} m** con $V_c$ = {V_c:.2f} m/s. "
         f"El caudal unitario es q = {comp['caudal_unitario_m2s']:.2f} m²/s.\n"
-        "- Si el canal opera con tirantes **mayores** que y_c, el flujo es subcrítico (Fr < 1); con tirantes menores, supercrítico. "
+        "- Si el canal opera con tirantes **mayores** que $y_c$, el flujo es subcrítico (Fr < 1); con tirantes menores, supercrítico. "
         "Qué régimen ocurra depende de la pendiente y rugosidad (tirante normal), que **este modelo no calcula**.\n"
-        "- y_c no garantiza borde libre, estabilidad ni seguridad del canal.")
+        "- $y_c$ no garantiza borde libre, estabilidad ni seguridad del canal.")
 
     st.markdown("#### Publicar al flujo integrado")
     puede = vig and abs(comp["diferencia_con_analitica_m"]) < 1e-4
-    if st.button("Publicar y_c (y Q_d) para la pestaña 1", key="pub_yc", disabled=not puede, type="primary"):
+    if st.button("Publicar $y_c$ (y $Q_d$) para la pestaña 1", key="pub_yc", disabled=not puede, type="primary"):
         estado.publicar("q_d", d["Qd"], "m³/s", "Pestaña 2 · No lineales", {"Q_total": Qt, "alpha": alpha}, "Q_d = α·Q_total")
         estado.publicar("y_c", y_c, "m", "Pestaña 2 · No lineales", {"Q_total": Qt, "alpha": alpha, "b": b, "g": g},
                         f"Newton 2×2, {nw['iteraciones']} iteraciones")
@@ -180,7 +180,7 @@ def render() -> None:
     if not vig:
         st.caption("Recalcule para poder publicar (las entradas cambiaron).")
     elif not puede:
-        st.caption("No se publica: y_c no coincide con la solución analítica.")
+        st.caption("No se publica: $y_c$ no coincide con la solución analítica.")
 
 
 def _tablas_historial(nw: dict, pf: dict, esc: dict) -> None:

@@ -160,7 +160,7 @@ def render() -> None:
     if st.button(f"Usar {q_pub:.3f} m³/s como Q_total", key="pub_q4", disabled=not puede, type="primary"):
         estado.publicar("q_total", q_pub, "m³/s", f"Pestaña 4 · {metodo.split(' (')[0]}", {"h": h_c}, f"h = {h_c:.4f} m · nodos: {datos.get('procedencia', '—')}")
         estado.invalidar("q_d")
-        st.success("Q_total publicado. La pestaña 2 lo usará para calcular Q_d y la profundidad crítica.")
+        st.success("$Q_{total}$ publicado. La pestaña 2 lo usará para calcular $Q_d$ y la profundidad crítica.")
     if not vig:
         st.caption("Recalcule para poder publicar (las entradas cambiaron).")
     elif not puede:

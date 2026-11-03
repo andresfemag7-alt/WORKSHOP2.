@@ -72,7 +72,7 @@ def _armadura() -> None:
         obsoleto = estado.obtener("q_total") and not estado.iguales({"Q": yc_item["entradas"].get("Q_total", -1.0)},
                                                                     {"Q": estado.valor("q_total")})
         if obsoleto:
-            st.warning(" El caudal total publicado cambió después de calcular y_c: **y_c está desactualizado**. "
+            st.warning(" El caudal total publicado cambió después de calcular $y_c$: **$y_c$ está desactualizado**. "
                        "Recalcule la pestaña 2 antes de confiar en esta carga.")
         filas += [
             {"simbolo": "y_c", "descripcion": f"Profundidad crítica (calculada en {yc_item['modulo']} a las {yc_item['hora']})",
@@ -88,7 +88,7 @@ def _armadura() -> None:
         filas.append({"simbolo": "W", "descripcion": "Peso del agua en el tramo (manual)", "valor": ui.fmt(W, 3), "unidad": "kN", "proc": "editado"})
     ui.tabla_variables(filas)
     if usar_flujo:
-        st.caption("Cadena de transferencia: w = ρ·g·b·y_c [N/m → kN/m]; W = w·L [kN] (carga **tributaria** del tramo, no carga de diseño); "
+        st.caption("Cadena de transferencia: w = ρ·g·b·$y_c$ [N/m → kN/m]; W = w·L [kN] (carga **tributaria** del tramo, no carga de diseño); "
                    "reparto 50 % en D y 50 % en E por simetría del apoyo del canal.")
 
     entradas = {"L": L, "H": H, "W": W}
