@@ -139,14 +139,19 @@ def render() -> None:
 
     st.markdown("**Comprobaciones hidráulicas**")
     lib = d.get("lib", {})
-    ui.tabla(pd.DataFrame([
-        {"Comprobación": "y_c analítica = (Q_d²/(g·b²))^(1/3) [m]", "Valor": f"{comp['y_analitica_m']:.8f}",
-         "Diferencia con Newton": f"{ui.cient(comp['diferencia_con_analitica_m'], 1)} m"},
-        {"Comprobación": "Energía específica E = y + V²/2g [m]", "Valor": f"{comp['energia_especifica_m']:.6f}", "Diferencia con 1.5·y_c": f"{ui.cient(comp['energia_especifica_m'] - comp['energia_minima_teorica_m'], 1)} m"},
-        {"Comprobación": "Residual de continuidad b·y·V − Q_d [m³/s]", "Valor": f"{ui.cient(comp['residual_Q_m3s'], 1)}", "Diferencia con Newton": "—"},
-        {"Comprobación": lib.get("libreria_usada", "scipy.optimize.root"), "Valor": f"y = {lib['x_libreria'][0]:.8f} m" if lib else "—",
-         "Diferencia con Newton": f"{ui.cient(lib['max_diferencia_absoluta'], 1)}" if lib else "—"},
-    ]))
+    I = lambda x: f"<i>{x}</i>"
+    yc = I("y") + "<sub>c</sub>"
+    Qd = I("Q") + "<sub>d</sub>"
+    ui.tabla_html([
+        {"Comprobación": f"{yc} analítica = ({Qd}²/({I('g')}·{I('b')}²))<sup>1/3</sup> [m]", "Valor": f"{comp['y_analitica_m']:.8f}",
+         "Diferencia": f"con Newton: {ui.cient(comp['diferencia_con_analitica_m'], 1)} m"},
+        {"Comprobación": f"Energía específica {I('E')} = {I('y')} + {I('V')}²/2{I('g')} [m]", "Valor": f"{comp['energia_especifica_m']:.6f}",
+         "Diferencia": f"con 1.5·{yc}: {ui.cient(comp['energia_especifica_m'] - comp['energia_minima_teorica_m'], 1)} m"},
+        {"Comprobación": f"Residual de continuidad {I('b')}·{I('y')}·{I('V')} − {Qd} [m³/s]", "Valor": f"{ui.cient(comp['residual_Q_m3s'], 1)}",
+         "Diferencia": "—"},
+        {"Comprobación": lib.get("libreria_usada", "scipy.optimize.root"), "Valor": f"{I('y')} = {lib['x_libreria'][0]:.8f} m" if lib else "—",
+         "Diferencia": f"con Newton: {ui.cient(lib['max_diferencia_absoluta'], 1)}" if lib else "—"},
+    ])
 
     # Gráficas en ancho completo y una debajo de otra: en media columna los títulos de las subgráficas se pisaban.
     st.markdown("#### Gráficas")

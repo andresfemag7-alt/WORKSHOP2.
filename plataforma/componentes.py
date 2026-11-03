@@ -21,7 +21,7 @@ def cient(x, n: int = 2) -> str:
     if x == 0:
         return "0"
     mant, exp = f"{x:.{n}e}".split("e")
-    return f"{mant}×10{str(int(exp)).translate(_SUP)}"
+    return f"{mant.replace('-', '−')}×10{str(int(exp)).translate(_SUP)}"
 
 
 def fmt(x, n: int = 4) -> str:
@@ -59,6 +59,15 @@ def tabla_variables(filas: list[dict]) -> None:
     for f in filas:
         h += (f"<tr><td><b>{f['simbolo']}</b></td><td>{f['descripcion']}</td><td>{f['valor']}</td>"
               f"<td>{f['unidad']}</td><td>{tema.insignia(f['proc'])}</td></tr>")
+    st.markdown(h + "</table>", unsafe_allow_html=True)
+
+
+def tabla_html(filas: list[dict]) -> None:
+    """Tabla con el estilo de la app que admite símbolos con <i>, <sub> y <sup> (st.dataframe no los admite)."""
+    cols = list(filas[0].keys())
+    h = "<table class='vars'><tr>" + "".join(f"<th>{c}</th>" for c in cols) + "</tr>"
+    for f in filas:
+        h += "<tr>" + "".join(f"<td>{f.get(c, '—')}</td>" for c in cols) + "</tr>"
     st.markdown(h + "</table>", unsafe_allow_html=True)
 
 
