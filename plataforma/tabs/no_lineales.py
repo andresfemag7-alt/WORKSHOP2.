@@ -68,9 +68,10 @@ def render() -> None:
     d1, d2, d3, d4 = st.columns(4)
     y0 = d1.number_input("Profundidad inicial y₀ (m)", 0.01, 100.0, 1.0, 0.1, key="nl_y0",
                          help="Debe ser positiva. V₀ se obtiene de la continuidad: V₀ = Q_d/(b·y₀).")
-    tol_c = d2.number_input("Tolerancia del cambio", 1e-14, 1e-1, 1e-8, format="%.1e", key="nl_tolc",
+    _pot = [float(f"1e-{k}") for k in range(1, 15)]  # 10⁻¹ … 10⁻¹⁴
+    tol_c = d2.selectbox("Tolerancia del cambio", _pot, index=7, format_func=lambda v: ui.cient(v, 0), key="nl_tolc_pot",
                             help="‖Δx‖∞ en (m, m/s). Con y ~ 1 m, 1e-8 m es mucho menor que cualquier precisión de campo.")
-    tol_r = d3.number_input("Tolerancia del residual", 1e-14, 1e-1, 1e-10, format="%.1e", key="nl_tolr",
+    tol_r = d3.selectbox("Tolerancia del residual", _pot, index=9, format_func=lambda v: ui.cient(v, 0), key="nl_tolr_pot",
                             help="‖F‖∞ del sistema ESCALADO (adimensional, error relativo de Fr² y de Q).")
     max_it = int(d4.number_input("Máx. iteraciones", 1, 2000, 200, 10, key="nl_maxit"))
 
