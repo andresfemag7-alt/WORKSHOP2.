@@ -39,6 +39,7 @@ def render() -> None:
                     "borde libre, estabilidad ni seguridad del canal.")
 
     st.markdown("#### Entradas")
+    st.caption("Use el **punto (.)** como separador decimal. Ejemplo: 0.15 y 6e-8 (o 6x10^-8).")
     q_item = estado.obtener("q_total")
     if q_item is not None:
         modo = st.radio("Origen del caudal total", [MODO_FLUJO, MODO_MANUAL], horizontal=True, key="nl_modo")
