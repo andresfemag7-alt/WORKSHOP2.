@@ -74,6 +74,7 @@ html, body, [class*="css"] {{ font-family: {FUENTE}; }}
 table.vars {{ border-collapse: collapse; width:100%; font-size:.9rem; }}
 table.vars th {{ text-align:left; background:#E6EEF3; padding:6px 8px; border-bottom:2px solid {PALETA['borde']}; }}
 table.vars td {{ padding:6px 8px; border-bottom:1px solid {PALETA['borde']}; vertical-align:top; }}
+table.vars td.n {{ text-align:right; font-variant-numeric: tabular-nums; }}
 .ficha {{ background:{PALETA['fondo_tarjeta']}; border:1px solid {PALETA['borde']}; border-left:5px solid {PALETA['primario']};
           border-radius:6px; padding:.7rem 1rem; margin-bottom:{ESPACIADO['m']}; }}
 .ficha b {{ color:{PALETA['primario']}; }}

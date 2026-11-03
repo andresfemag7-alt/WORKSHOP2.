@@ -126,7 +126,12 @@ def tabla_html(filas: list[dict]) -> None:
     cols = list(filas[0].keys())
     h = "<table class='vars'><tr>" + "".join(f"<th>{c}</th>" for c in cols) + "</tr>"
     for f in filas:
-        h += "<tr>" + "".join(f"<td>{f.get(c, '—')}</td>" for c in cols) + "</tr>"
+        celdas = []
+        for c in cols:
+            v = str(f.get(c, "—"))
+            num = re.fullmatch(r"[−-]?[\d.,]+(×10[⁻⁺⁰-⁹]+)?", v) is not None
+            celdas.append(f"<td class='n'>{v}</td>" if num else f"<td>{v}</td>")
+        h += "<tr>" + "".join(celdas) + "</tr>"
     st.markdown(h + "</table>", unsafe_allow_html=True)
 
 

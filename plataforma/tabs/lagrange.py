@@ -66,20 +66,24 @@ def render() -> None:
     st.markdown("**Polinomio y bases de Lagrange**")
     st.latex(r"P_n(h)=\sum_{i=0}^{n} Q_i\,L_i(h),\qquad L_i(h)=\prod_{j\neq i}\frac{h-h_j}{h_i-h_j}")
     Li = r["valores_bases_en_x_eval"]
-    ui.tabla(pd.DataFrame({"i": range(len(h)), "h_i (m)": h, "Q_i (m³/s)": Q, "L_i(h_c)": Li,
-                           "Q_i · L_i(h_c) (m³/s)": [q * l for q, l in zip(Q, Li)]}).round(6))
-    st.caption(f"Comprobación: Σ L_i(h_c) = {sum(Li):.10f} (debe ser 1) · Σ Q_i·L_i(h_c) = {Qhat:.6f} m³/s = P(h_c).")
-    with st.expander("Expresiones algebraicas (variable h en metros)"):
+    I = lambda x: f"<i>{x}</i>"
+    hi, Qi, Li_ = I("h") + "<sub>i</sub>", I("Q") + "<sub>i</sub>", I("L") + "<sub>i</sub>"
+    hc = f"({I('h')}<sub>c</sub>)"
+    _f = lambda x: ui.fmt(x, 4).replace("-", "−")
+    ui.tabla_html([{"<i>i</i>": k, f"{hi} (m)": _f(h[k]), f"{Qi} (m³/s)": _f(Q[k]), f"{Li_}{hc}": _f(Li[k]),
+                    f"{Qi}·{Li_}{hc} (m³/s)": _f(Q[k] * Li[k])} for k in range(len(h))])
+    st.caption(rf"Comprobación: $\sum_i L_i(h_c) = {sum(Li):.10f}$ (debe ser 1) · $\sum_i Q_i\,L_i(h_c) = {Qhat:.6f}$ m³/s $= P(h_c)$.")
+    with st.expander("Expresiones algebraicas (variable $h$ en metros)"):
         for i, b in enumerate(r["bases_L"]):
-            st.code(f"L_{i}(h) = {texto_polinomio(b)}", language="text")
+            st.code(f"L{str(i).translate(str.maketrans('0123456789', '₀₁₂₃₄₅₆₇₈₉'))}(h) = {texto_polinomio(b)}", language="text")
         st.code(f"P(h) = {r['expresion_algebraica']}", language="text")
         st.caption("Los coeficientes de la forma expandida pueden estar mal condicionados y se muestran solo como referencia; "
                    "la evaluación numérica usa la fórmula de Lagrange directa.")
 
     st.markdown("**Reproducción de los nodos**")
     rn = r["reproduccion_nodos"]
-    ui.tabla(pd.DataFrame(rn["detalles"]).rename(columns={"nodo_x": "h_i (m)", "y_real": "Q_i (m³/s)", "y_interp": "P(h_i)",
-                                                          "error_absoluto": "|P(h_i) − Q_i|"}))
+    ui.tabla_html([{f"{hi} (m)": _f(d_["nodo_x"]), f"{Qi} (m³/s)": _f(d_["y_real"]), f"{I('P')}({hi})": _f(d_["y_interp"]),
+                    f"|{I('P')}({hi}) − {Qi}|": ui.cient(d_["error_absoluto"], 1)} for d_ in rn["detalles"]])
     st.caption(rn["conclusion"])
     comp = r.get("comparacion_libreria") or {}
     if "coincidencia" in comp:
