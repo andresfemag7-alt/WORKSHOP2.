@@ -65,7 +65,7 @@ def render() -> None:
     Qd = Qt * alpha
 
     st.markdown("**Parámetros del método iterativo**")
-    st.caption("En las tolerancias use el **punto (.)** como separador decimal. Ejemplo: 6.5e-8 o 6.5x10^-8.")
+    st.caption("En las tolerancias use el **punto (.)** como separador decimal. Ejemplo: 0.0001 (equivale a 1x10^-4).")
     d1, d2, d3, d4 = st.columns(4)
     y0 = d1.number_input("Profundidad inicial y₀ (m)", 0.01, 100.0, 1.0, 0.1, key="nl_y0",
                          help="Debe ser positiva. V₀ se obtiene de la continuidad: V₀ = Q_d/(b·y₀).")
