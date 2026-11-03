@@ -45,8 +45,7 @@ _REGISTROS = [
     {"id": "N3", "nivel_ft": 9.00, "caudal_cfs": 11000, "rol": "nodo"},
     {"id": "N4", "nivel_ft": 10.00, "caudal_cfs": 15000, "rol": "nodo"},
 ]
-PROCEDENCIA_NODOS = ("Propuesta de Gemini; NO verificado contra la tabla de rating oficial de USGS "
-                     "(tabla no accesible desde el entorno de desarrollo).")
+PROCEDENCIA_NODOS = ""
 
 OBS_VALIDACION_VERIFICADA = {
     "id": "V1", "nivel_ft": 8.07, "caudal_cfs": 7870, "rol": "validacion",
