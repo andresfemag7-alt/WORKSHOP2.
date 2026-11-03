@@ -16,7 +16,7 @@ ADVERTENCIA_MODELO = (
 CONTEXTO = (
     "**Caso integrador.** Se capta agua del río Colorado y se deriva por un canal rectangular de concreto hacia una "
     "planta de tratamiento; en un tramo sobre una depresión, el canal se apoya en una armadura de acero. "
-    "Cada pestaña resuelve UNA etapa con UN método:")
+    "Cada pestaña resuelve una etapa con un método:")
 
 FLUJO_PASOS = [
 
