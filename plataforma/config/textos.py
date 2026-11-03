@@ -2,7 +2,7 @@
 
 APP_TITULO = "Métodos numéricos aplicados a una captación y derivación hídrica"
 APP_SUBTITULO = [
-    ("Algoritmos Numéricos · Ingeniería Civil - Aplicación de los métodos a la ingeniería"),
+    ("Algoritmos Numéricos · Ingeniería Civil - Aplicación de los métodos a la ingeniería")\n,
     ("Estudiantes: Andres Felipe Madroñero Garces & Sebastian Molina Giraldo")
 ]
 
