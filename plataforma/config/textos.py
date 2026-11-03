@@ -1,7 +1,10 @@
 """Títulos, descripciones y mensajes centralizados (editar aquí, no en las pestañas)."""
 
 APP_TITULO = "Métodos numéricos aplicados a una captación y derivación hídrica"
-APP_SUBTITULO = ("Workshop 2 · Algoritmos Numéricos · Ingeniería Civil — Parte 3: aplicación de los métodos a la ingeniería")
+APP_SUBTITULO = ("Algoritmos Numéricos · Ingeniería Civil — aplicación de los métodos a la ingeniería
+                  Estudiantes:Sebastian Molina Giraldo & Andrés Felipe Madroñero 
+                  Docente:Mg.Mario Hernan Lopez Arbelaez
+                  ")
 
 ADVERTENCIA_MODELO = (
     "**Modelo académico conceptual — no es un diseño listo para construir.** Un proyecto real de captación requeriría "
