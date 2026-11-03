@@ -1,6 +1,6 @@
 """Títulos, descripciones y mensajes centralizados (editar aquí, no en las pestañas)."""
 
-APP_TITULO = "Métodos numéricos aplicados a una captación y derivación hídrica"
+APP_TITULO = "Métodos numéricos aplicados a una captación y derivación hídrica MARIO PERRO JUEPUTA, A LA PRÓXIMA QUE ME PONGA UN TRABAJO ASÍ LO MANDO A PELAR"
 APP_SUBTITULO = "Algoritmos Numéricos · Ingeniería Civil - Aplicación de los métodos a la ingeniería"
 
 ADVERTENCIA_MODELO = (
