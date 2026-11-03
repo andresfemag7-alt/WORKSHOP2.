@@ -93,12 +93,30 @@ def cabecera_tab(clave: str) -> None:
     ficha(clave)
 
 
+_VAR = re.compile(r"([A-Za-zρα])(?:_(\w+))?")
+
+
+def _var_html(m) -> str:
+    return f"<i>{m.group(1)}</i>" + (f"<sub>{m.group(2)}</sub>" if m.group(2) else "")
+
+
+def simbolo_html(texto: str) -> str:
+    """Columna «Símbolo»: variables en cursiva y con subíndice real (Q_total → Q<sub>total</sub>)."""
+    return _VAR.sub(_var_html, str(texto))
+
+
+def descripcion_html(texto: str) -> str:
+    """Columna «Descripción»: solo las fórmulas (A = b·y_c, w = ρ·g·A…) y condiciones (y > 0) pasan a notación matemática."""
+    t = re.sub(r"\b[A-Za-zρα](?:_\w+)?\s*=\s*[\w·.]+", lambda m: _VAR.sub(_var_html, m.group(0)), str(texto))
+    return re.sub(r"\b([yV])\s*>\s*0", r"<i>\1</i> &gt; 0", t)
+
+
 def tabla_variables(filas: list[dict]) -> None:
     """filas: simbolo, descripcion, valor (str), unidad, proc (clave de tema.PROCEDENCIA)."""
     h = ("<table class='vars'><tr><th>Símbolo</th><th>Descripción</th><th>Valor</th><th>Unidad</th>"
          "<th>Procedencia / condición</th></tr>")
     for f in filas:
-        h += (f"<tr><td><b>{f['simbolo']}</b></td><td>{f['descripcion']}</td><td>{f['valor']}</td>"
+        h += (f"<tr><td><b>{simbolo_html(f['simbolo'])}</b></td><td>{descripcion_html(f['descripcion'])}</td><td>{f['valor']}</td>"
               f"<td>{f['unidad']}</td><td>{tema.insignia(f['proc'])}</td></tr>")
     st.markdown(h + "</table>", unsafe_allow_html=True)
 
