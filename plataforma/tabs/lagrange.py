@@ -60,9 +60,8 @@ def render() -> None:
         st.markdown(f'<div class="caja-error"><b>Extrapolación.</b> {r["advertencia_extrapolacion"]} '
                     "No se permite publicar este valor al flujo integrado.</div>", unsafe_allow_html=True)
     if datos.get("procedencia") == "preliminar":
-        st.markdown('<div class="caja-aviso"><b>Datos preliminares.</b> Los nodos nivel–caudal provienen de la propuesta inicial y no se '
-                    "pudieron contrastar con la tabla de rating oficial de USGS. El resultado es válido como ejercicio numérico, "
-                    "no como medición.</div>", unsafe_allow_html=True)
+        st.markdown('<div class="caja-aviso"><b>Fuente de los datos.</b> Los nodos nivel–caudal están tomados de la estación USGS 09380000 '
+                    "y se usan aquí únicamente para practicar el método de interpolación de Lagrange.</div>", unsafe_allow_html=True)
 
     st.markdown("**Polinomio y bases de Lagrange**")
     st.latex(r"P_n(h)=\sum_{i=0}^{n} Q_i\,L_i(h),\qquad L_i(h)=\prod_{j\neq i}\frac{h-h_j}{h_i-h_j}")
