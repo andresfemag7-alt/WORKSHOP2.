@@ -77,6 +77,8 @@ table.vars td {{ padding:6px 8px; border-bottom:1px solid {PALETA['borde']}; ver
 .ficha {{ background:{PALETA['fondo_tarjeta']}; border:1px solid {PALETA['borde']}; border-left:5px solid {PALETA['primario']};
           border-radius:6px; padding:.7rem 1rem; margin-bottom:{ESPACIADO['m']}; }}
 .ficha b {{ color:{PALETA['primario']}; }}
+.mat {{ color:#0B5C8E; font-weight:700; font-style:italic; font-family:'Cambria Math','Times New Roman',serif; font-size:1.05em; background:#E6F0F7; padding:0 5px; border-radius:4px; white-space:nowrap; }}
+.mat sub {{ font-size:.75em; }}
 .ficha div {{ margin:.15rem 0; }}
 .caja-res {{ background:#EAF4EC; border:1px solid #9CC9A3; border-radius:6px; padding:.6rem 1rem; margin:.4rem 0; }}
 .caja-aviso {{ background:#FFF6E0; border:1px solid #E0C070; border-radius:6px; padding:.6rem 1rem; margin:.4rem 0; }}
