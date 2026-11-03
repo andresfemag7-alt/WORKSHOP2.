@@ -10,12 +10,26 @@ from .config import textos, tema
 from .estado import iguales
 
 
+_SUP = str.maketrans("0123456789-+", "⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺")
+
+
+def cient(x, n: int = 2) -> str:
+    """Notación científica limpia: 1.42e-14 → 1.42×10⁻¹⁴ (el cero se muestra como 0)."""
+    if x is None:
+        return "—"
+    x = float(x)
+    if x == 0:
+        return "0"
+    mant, exp = f"{x:.{n}e}".split("e")
+    return f"{mant}×10{str(int(exp)).translate(_SUP)}"
+
+
 def fmt(x, n: int = 4) -> str:
     if x is None:
         return "—"
     try:
         if x != 0 and (abs(x) < 10 ** (-n) or abs(x) >= 1e7):
-            return f"{x:.3e}"
+            return cient(x, 3)
         return f"{x:,.{n}f}"
     except (TypeError, ValueError):
         return str(x)

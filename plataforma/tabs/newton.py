@@ -104,7 +104,7 @@ def render() -> None:
     hh = np.linspace(hmin, hmax, 400)
     dif_ln = float(np.max(np.abs(f_new(hh) - f_lag(hh))))
     esc = max(1.0, float(np.max(np.abs(Q))))
-    st.caption(f"Máx |Newton − Lagrange| sobre el intervalo = {dif_ln:.2e} m³/s ({dif_ln / esc:.1e} relativo al caudal máximo): redondeo de punto flotante.")
+    st.caption(f"Máx |Newton − Lagrange| sobre el intervalo = {ui.cient(dif_ln, 2)} m³/s ({ui.cient(dif_ln / esc, 1)} relativo al caudal máximo): redondeo de punto flotante.")
 
     preds = {m: float(f(h_c)) for m, f in curvas.items()}
     ui.tabla(pd.DataFrame([{"Método": m, f"Q(h = {h_c:.4f} m) (m³/s)": v, "Diferencia con Lagrange (m³/s)": v - preds["Lagrange"]} for m, v in preds.items()]).round(6))

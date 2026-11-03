@@ -83,7 +83,7 @@ def render() -> None:
     st.caption(rn["conclusion"])
     comp = r.get("comparacion_libreria") or {}
     if "coincidencia" in comp:
-        st.caption(f"Contraste con {comp['libreria']}: diferencia {comp['diferencia_eval']:.1e} m³/s · coincide: {'sí' if comp['coincidencia'] else 'NO'}.")
+        st.caption(f"Contraste con {comp['libreria']}: diferencia {ui.cient(comp['diferencia_eval'], 1)} m³/s · coincide: {'sí' if comp['coincidencia'] else 'NO'}.")
 
     st.markdown("#### Gráfica")
     ui.grafica(graficas.fig_interpolacion(h, Q, {"Lagrange": r["P_poly"]}, h_c, Qhat, datos["validacion"],
