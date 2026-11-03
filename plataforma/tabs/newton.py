@@ -157,7 +157,7 @@ def render() -> None:
     metodo = st.selectbox("Estimación a usar como $Q_{total}$", ["Newton (= Lagrange)", "Spline cúbico natural"], key="pub4_met")
     q_pub = preds["Newton"] if metodo.startswith("Newton") else preds["Spline cúbico natural"]
     puede = vig and not nw["extrapolando"] and q_pub > 0
-    if st.button(f"Usar {q_pub:.3f} m³/s como $Q_{total}$", key="pub_q4", disabled=not puede, type="primary"):
+    if st.button(f"Usar {q_pub:.3f} m³/s como $Q_{{total}}$", key="pub_q4", disabled=not puede, type="primary"):
         estado.publicar("q_total", q_pub, "m³/s", f"Pestaña 4 · {metodo.split(' (')[0]}", {"h": h_c}, f"h = {h_c:.4f} m · nodos: {datos.get('procedencia', '—')}")
         estado.invalidar("q_d")
         st.success("$Q_{total}$ publicado. La pestaña 2 lo usará para calcular $Q_d$ y la profundidad crítica.")
