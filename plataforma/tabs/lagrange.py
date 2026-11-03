@@ -131,7 +131,7 @@ def render() -> None:
 
     st.markdown("#### Publicar al flujo integrado")
     puede = vig and not r["extrapolando"] and Qhat > 0
-    if st.button("Usar esta estimación como Q_total", key="pub_q3", disabled=not puede, type="primary"):
+    if st.button("Usar esta estimación como $Q_{total}$", key="pub_q3", disabled=not puede, type="primary"):
         estado.publicar("q_total", Qhat, "m³/s", "Pestaña 3 · Lagrange", {"h": h_c},
                         f"h = {h_c:.4f} m · nodos: {datos.get('procedencia', '—')}")
         estado.invalidar("q_d")
