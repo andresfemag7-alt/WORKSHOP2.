@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import datetime as dt
+import re
 
 import pandas as pd
 import streamlit as st
@@ -22,6 +23,46 @@ def cient(x, n: int = 2) -> str:
         return "0"
     mant, exp = f"{x:.{n}e}".split("e")
     return f"{mant.replace('-', '−')}×10{str(int(exp)).translate(_SUP)}"
+
+
+def cient_corto(x: float) -> str:
+    """6e-8 → 6×10⁻⁸ (sin ceros sobrantes en la mantisa)."""
+    mant, exp = f"{float(x):.6e}".split("e")
+    mant = mant.rstrip("0").rstrip(".")
+    return f"{mant.replace('-', '−')}×10{str(int(exp)).translate(_SUP)}"
+
+
+_SUP_A_NORMAL = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺", "0123456789-+")
+
+
+def _leer_numero(texto: str) -> float:
+    """Acepta 6e-8, 6x10^-8, 6×10^-8, 6*10^-8, 6×10⁻⁸, 10^-8 o un decimal normal."""
+    t = texto.strip().lower().replace(",", ".").replace("−", "-").replace(" ", "")
+    t = re.sub(r"10([⁻⁺]?[⁰¹²³⁴⁵⁶⁷⁸⁹]+)", lambda m: "10^" + m.group(1).translate(_SUP_A_NORMAL), t)
+    m = re.fullmatch(r"([+-]?\d*\.?\d+)[x×*]10\^?\(?([+-]?\d+)\)?", t)
+    if m:
+        return float(f"{m.group(1)}e{int(m.group(2))}")
+    m = re.fullmatch(r"10\^\(?([+-]?\d+)\)?", t)
+    if m:
+        return 10.0 ** int(m.group(1))
+    return float(t)
+
+
+def tolerancia(col, etiqueta: str, defecto: float, clave: str, ayuda: str, minimo: float = 1e-14, maximo: float = 1e-1) -> float:
+    """Campo de texto para tolerancias: se escribe 6x10^-8 / 6e-8 y se muestra como 6×10⁻⁸. Si es inválido, se conserva el último valor válido."""
+    ok = f"{clave}_ok"
+    st.session_state.setdefault(ok, defecto)
+    txt = col.text_input(etiqueta, value=f"{defecto:.0e}".replace("e-0", "e-"), key=clave, help=ayuda)
+    try:
+        v = _leer_numero(txt)
+        if not (minimo <= v <= maximo):
+            raise ValueError("rango")
+        st.session_state[ok] = v
+        col.caption(f"Se usa: **{cient_corto(v)}**")
+    except Exception:
+        col.error(f"Valor no válido. Escriba, por ejemplo, 6x10^-8 o 6e-8 (entre {cient_corto(minimo)} y {cient_corto(maximo)}). "
+                  f"Se sigue usando {cient_corto(st.session_state[ok])}.")
+    return float(st.session_state[ok])
 
 
 def fmt(x, n: int = 4) -> str:
