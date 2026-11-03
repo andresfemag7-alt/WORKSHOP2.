@@ -129,7 +129,7 @@ def tabla_html(filas: list[dict]) -> None:
         celdas = []
         for c in cols:
             v = str(f.get(c, "—"))
-            num = re.fullmatch(r"[−-]?[\d.,]+(×10[⁻⁺⁰-⁹]+)?", v) is not None
+            num = re.fullmatch(r"[−-]?[\d.,]+(×10[⁻⁺⁰¹²³⁴⁵⁶⁷⁸⁹]+)?", v) is not None
             celdas.append(f"<td class='n'>{v}</td>" if num else f"<td>{v}</td>")
         h += "<tr>" + "".join(celdas) + "</tr>"
     st.markdown(h + "</table>", unsafe_allow_html=True)
