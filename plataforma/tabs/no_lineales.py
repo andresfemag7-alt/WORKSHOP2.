@@ -11,7 +11,7 @@ from modulos.newton_sistemas import comparar_con_libreria_no_lineal, newton_raph
 from modulos.punto_fijo import punto_fijo_sistemas
 
 from .. import componentes as ui
-from .. import estado, graficas
+from .. import estado, graficas, simbolos
 from ..config import textos
 
 MODO_FLUJO = "Usar Q_total publicado (pestaña 3 o 4)"
@@ -114,7 +114,7 @@ def render() -> None:
 
     st.markdown("#### Resultados")
     if not nw["exito"] or not nw["convergio"]:
-        st.markdown(f'<div class="caja-error"><b>Newton no convergió.</b> {nw["motivo_parada"]}<br>'
+        st.markdown(f'<div class="caja-error"><b>Newton no convergió.</b> {simbolos.bonito(nw["motivo_parada"])}<br>'
                     "No se publica y_c al flujo integrado. Pruebe otra aproximación inicial o aumente el máximo de iteraciones.</div>", unsafe_allow_html=True)
         estado.invalidar("y_c")
         _tablas_historial(nw, pf, esc)
@@ -126,15 +126,15 @@ def render() -> None:
     m2.metric("Velocidad crítica V_c", f"{V_c:.4f} m/s")
     m3.metric("Froude (comprobación)", f"{comp['froude']:.6f}")
     m4.metric("Área mojada b·y_c", f"{comp['area_mojada_m2']:.4f} m²")
-    st.markdown(f'<div class="caja-res">Newton (sistema 2×2): {nw["motivo_parada"]}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="caja-res">Newton (sistema 2×2): {simbolos.bonito(nw["motivo_parada"])}</div>', unsafe_allow_html=True)
 
     ui.tabla(pd.DataFrame([
         {"Método": "Newton-Raphson, sistema 2×2 (y, V)", "Convergió": "sí" if nw["convergio"] else "no", "Iteraciones": nw["iteraciones"],
-         "y_c (m)": nw["x_sol"][0], "Motivo de parada": nw["motivo_parada"]},
+         "y_c (m)": nw["x_sol"][0], "Motivo de parada": simbolos.bonito(nw["motivo_parada"])},
         {"Método": "Punto fijo simultáneo, sistema 2×2", "Convergió": "sí" if pf["convergio"] else "no", "Iteraciones": pf["iteraciones"],
-         "y_c (m)": pf["x_sol"][0] if pf["x_sol"] else None, "Motivo de parada": pf["motivo_parada"]},
+         "y_c (m)": pf["x_sol"][0] if pf["x_sol"] else None, "Motivo de parada": simbolos.bonito(pf["motivo_parada"])},
         {"Método": "Newton escalar 1×1 sobre f(y) = Q_d² − g·b²·y³", "Convergió": "sí" if esc["convergio"] else "no", "Iteraciones": esc["iteraciones"],
-         "y_c (m)": esc["x_sol"][0] if esc["x_sol"] else None, "Motivo de parada": esc["motivo_parada"]},
+         "y_c (m)": esc["x_sol"][0] if esc["x_sol"] else None, "Motivo de parada": simbolos.bonito(esc["motivo_parada"])},
     ]))
 
     st.markdown("**Comprobaciones hidráulicas**")

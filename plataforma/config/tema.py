@@ -89,6 +89,8 @@ table.vars td {{ padding:6px 8px; border-bottom:1px solid {PALETA['borde']}; ver
 
 
 def aplicar_tema() -> None:
+    from .. import simbolos
+    simbolos.instalar()
     st.markdown(CSS, unsafe_allow_html=True)
     fondo_app()
 
