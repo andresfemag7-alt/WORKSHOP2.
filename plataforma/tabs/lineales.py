@@ -72,7 +72,7 @@ def _armadura() -> None:
         obsoleto = estado.obtener("q_total") and not estado.iguales({"Q": yc_item["entradas"].get("Q_total", -1.0)},
                                                                     {"Q": estado.valor("q_total")})
         if obsoleto:
-            st.warning("⚠️ El caudal total publicado cambió después de calcular y_c: **y_c está desactualizado**. "
+            st.warning(" El caudal total publicado cambió después de calcular y_c: **y_c está desactualizado**. "
                        "Recalcule la pestaña 2 antes de confiar en esta carga.")
         filas += [
             {"simbolo": "y_c", "descripcion": f"Profundidad crítica (calculada en {yc_item['modulo']} a las {yc_item['hora']})",
