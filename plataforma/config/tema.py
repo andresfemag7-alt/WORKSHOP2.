@@ -102,7 +102,7 @@ def fondo_tab(clave: str) -> None:
     """Imagen de fondo de la página (pestaña) `clave`, con velo claro para mantener legible el contenido."""
     st.markdown(
         f'<div id="fondo-{clave}"></div><style>'
-        f'div[data-baseweb="tab-panel"]:has(#fondo-{clave}) {{'
+        f'div[data-baseweb="tab-panel"]:has(#fondo-{clave}), div[role="tabpanel"]:has(#fondo-{clave}) {{'
         f'background-image: linear-gradient(rgba(246,249,251,.82), rgba(246,249,251,.82)), '
         f'url("data:image/jpeg;base64,{_fondo_b64(clave)}");'
         f'background-size: cover; background-position: center top; background-repeat: no-repeat; '
