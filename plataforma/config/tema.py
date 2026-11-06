@@ -69,7 +69,11 @@ CSS = f"""
 html, body, [class*="css"] {{ font-family: {FUENTE}; }}
 .block-container {{ padding-top: 1.4rem; max-width: 1180px; }}
 .app-titulo {{ font-size: 1.55rem; font-weight: 700; color: {PALETA['primario']}; margin: 0; }}
-.app-sub {{ color: {PALETA['suave']}; margin: 0 0 {ESPACIADO['m']} 0; }}
+.app-sub {{ color: {PALETA['suave']}; margin: 0 0 {ESPACIADO['s']} 0; }}
+.app-meta {{ display:grid; grid-template-columns: repeat(3, auto); justify-content:start; gap:.2rem 2rem;
+             background:{PALETA['fondo_tarjeta']}; border:1px solid {PALETA['borde']}; border-left:5px solid {PALETA['primario']};
+             border-radius:6px; padding:.55rem 1rem; margin:0 0 {ESPACIADO['m']} 0; font-size:.88rem; color:{PALETA['texto']}; }}
+.app-meta span {{ display:block; font-size:.68rem; letter-spacing:.08em; font-weight:700; color:{PALETA['primario']}; }}
 .ins {{ display:inline-block; padding:1px 8px; border-radius:10px; font-size:.74rem; font-weight:600; white-space:nowrap; }}
 table.vars {{ border-collapse: collapse; width:100%; font-size:.9rem; }}
 table.vars th {{ text-align:left; background:#E6EEF3; padding:6px 8px; border-bottom:2px solid {PALETA['borde']}; }}
@@ -84,6 +88,7 @@ table.vars td.n {{ text-align:right; font-variant-numeric: tabular-nums; }}
 .caja-res {{ background:#EAF4EC; border:1px solid #9CC9A3; border-radius:6px; padding:.6rem 1rem; margin:.4rem 0; }}
 .caja-aviso {{ background:#FFF6E0; border:1px solid #E0C070; border-radius:6px; padding:.6rem 1rem; margin:.4rem 0; }}
 .caja-error {{ background:#FDECEA; border:1px solid #E5A19B; border-radius:6px; padding:.6rem 1rem; margin:.4rem 0; }}
+@media (max-width: 900px) {{ .app-meta {{ grid-template-columns: 1fr; }} }}
 @media (max-width: 640px) {{ .app-titulo {{ font-size: 1.2rem; }} table.vars {{ font-size:.8rem; }} }}
 </style>
 """

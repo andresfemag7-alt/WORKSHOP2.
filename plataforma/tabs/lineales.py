@@ -13,6 +13,7 @@ from modulos.sistemas_lineales import comparar_con_libreria_lineal, gauss_pivote
 
 from .. import componentes as ui
 from .. import estado, graficas
+from .. import notacion as nt
 from ..config import textos
 
 DESCRIPCION_ECUACION = {"Fx": "Σ Fx = 0", "Fy": "Σ Fy = 0"}
@@ -26,7 +27,7 @@ PERSONALIZADO = "Personalizado n×n"
 
 def render() -> None:
     ui.cabecera_tab("lineales")
-    modo = st.radio("Modo de trabajo", ["Armadura del caso integrador", "Sistema lineal propio (A·x = b)"],
+    modo = st.radio("Modo de trabajo", ["Armadura del caso integrador", r"Sistema lineal propio ($\mathbf{A}\mathbf{x}=\mathbf{b}$)"],
                     horizontal=True, key="lin_modo")
     if modo.startswith("Armadura"):
         _armadura()
@@ -42,17 +43,17 @@ def _armadura() -> None:
                 "Solo se considera el **peso del agua**.")
     usar_flujo = False
     if yc_item is not None:
-        fuente = st.radio("Origen del peso del agua", ["Desde el flujo integrado ($y_c$ de la pestaña 2)", "Carga manual"],
-                          horizontal=True, key="lin_fuente_v2")
+        fuente = st.radio("Origen del peso del agua", ["Desde el flujo integrado (y_c de la pestaña 2)", "Carga manual"],
+                          horizontal=True, key="lin_fuente")
         usar_flujo = fuente.startswith("Desde")
     else:
         st.info(textos.MSG_SIN_FLUJO + " Mientras tanto se usa la carga manual.")
 
     c1, c2, c3 = st.columns(3)
-    L = c1.number_input("Luz del tramo L (m)", 0.5, 100.0, 5.0, 0.5, key="lin_L",
+    L = c1.number_input(r"Luz del tramo $L$ (m)", 0.5, 100.0, 5.0, 0.5, key="lin_L",
                         help="Longitud de canal soportada por la armadura = luz entre apoyos A y C. Supuesto del escenario (propuesta original: 5 m).")
-    H = c2.number_input("Altura de la armadura H (m)", 0.2, 50.0, 1.5, 0.1, key="lin_H", help="Supuesto del escenario.")
-    rho = c3.number_input("Densidad del agua ρ (kg/m³)", 900.0, 1100.0, 1000.0, 10.0, key="lin_rho",
+    H = c2.number_input(r"Altura de la armadura $H$ (m)", 0.2, 50.0, 1.5, 0.1, key="lin_H", help="Supuesto del escenario.")
+    rho = c3.number_input(r"Densidad del agua $\rho$ (kg/m³)", 900.0, 1100.0, 1000.0, 10.0, key="lin_rho",
                           help="Supuesto: agua dulce a ~4–20 °C. Se admite variar por temperatura o sedimentos.")
 
     filas = [
@@ -72,7 +73,7 @@ def _armadura() -> None:
         obsoleto = estado.obtener("q_total") and not estado.iguales({"Q": yc_item["entradas"].get("Q_total", -1.0)},
                                                                     {"Q": estado.valor("q_total")})
         if obsoleto:
-            st.warning(" El caudal total publicado cambió después de calcular $y_c$: **$y_c$ está desactualizado**. "
+            st.warning(r"⚠️ El caudal total publicado cambió después de calcular $y_c$, que por tanto **está desactualizado**. "
                        "Recalcule la pestaña 2 antes de confiar en esta carga.")
         filas += [
             {"simbolo": "y_c", "descripcion": f"Profundidad crítica (calculada en {yc_item['modulo']} a las {yc_item['hora']})",
@@ -83,12 +84,12 @@ def _armadura() -> None:
             {"simbolo": "W", "descripcion": "Peso del agua en el tramo, W = w·L", "valor": ui.fmt(W, 3), "unidad": "kN", "proc": "calculado"},
         ]
     else:
-        W = st.number_input("Peso total del agua sobre el tramo W (kN)", 0.0, 1e6, 200.0, 10.0, key="lin_W",
-                            help="Modo manual e independiente de las otras pestañas. W = w·L, con w = ρ·g·b·y.")
+        W = st.number_input(r"Peso total del agua sobre el tramo $W$ (kN)", 0.0, 1e6, 200.0, 10.0, key="lin_W",
+                            help=r"Modo manual e independiente de las otras pestañas. $W=w\,L$, con $w=\rho\,g\,b\,y$.")
         filas.append({"simbolo": "W", "descripcion": "Peso del agua en el tramo (manual)", "valor": ui.fmt(W, 3), "unidad": "kN", "proc": "editado"})
     ui.tabla_variables(filas)
     if usar_flujo:
-        st.caption("Cadena de transferencia: w = ρ·g·b·$y_c$ [N/m → kN/m]; W = w·L [kN] (carga **tributaria** del tramo, no carga de diseño); "
+        st.caption(r"Cadena de transferencia: $w=\rho\,g\,b\,y_c$ [N/m → kN/m]; $W=w\,L$ [kN] (carga **tributaria** del tramo, no carga de diseño); "
                    "reparto 50 % en D y 50 % en E por simetría del apoyo del canal.")
 
     entradas = {"L": L, "H": H, "W": W}
@@ -112,9 +113,9 @@ def _armadura() -> None:
         st.error(r["mensaje"])
         return
     if W == 0:
-        st.info("Con W = 0 todas las fuerzas son nulas: es el resultado correcto del modelo.")
+        st.info(r"Con $W=0$ todas las fuerzas son nulas: es el resultado correcto del modelo.")
 
-    st.markdown("#### Sistema de equilibrio A·x = b")
+    st.markdown(r"#### Sistema de equilibrio $\mathbf{A}\mathbf{x}=\mathbf{b}$")
     cA, cB = st.columns([3, 2])
     with cA:
         etq = sis["incognitas"]
@@ -124,7 +125,7 @@ def _armadura() -> None:
     with cB:
         dfb = pd.DataFrame({"Ecuación": dfA["Ecuación"], "b = −P_ext (kN)": sis["b"]})
         ui.tabla(dfb.round(4))
-        st.caption("Incógnitas x: fuerzas axiales de las 7 barras (kN; **+ tracción, − compresión**) y 3 reacciones (kN). "
+        st.caption(r"Incógnitas $\mathbf{x}$: fuerzas axiales de las 7 barras (kN; **+ tracción, − compresión**) y 3 reacciones (kN). "
                    f"10 ecuaciones, 10 incógnitas, rango = {sis['rango']} → armadura **estáticamente determinada y estable**.")
 
     mostrar_gauss(r["gauss"], sis["incognitas"], "arm")
@@ -146,40 +147,40 @@ def _armadura() -> None:
     dif = max(abs(r["fuerzas_kN"][k] - ref[k]) for k in r["fuerzas_kN"])
     comp = comparar_con_libreria_lineal(sis["A"], sis["b"], g["x"])
     ui.tabla(pd.DataFrame([
-        {"Comprobación": "Residual ‖A·x − b‖∞ (kN)", "Valor": f"{ui.cient(g['norma_residuo_inf'], 2)}", "Lectura": "≈ 0: se satisface cada ecuación de equilibrio"},
-        {"Comprobación": "Σ Fx, Σ Fy global (kN)", "Valor": f"{ui.cient(eq['suma_Fx_kN'], 1)}, {ui.cient(eq['suma_Fy_kN'], 1)}", "Lectura": "Cargas + reacciones en equilibrio"},
-        {"Comprobación": "Σ M respecto al origen (kN·m)", "Valor": f"{ui.cient(eq['suma_M_kNm'], 1)}", "Lectura": "Equilibrio de momentos"},
-        {"Comprobación": "Máx |x − solución analítica| (kN)", "Valor": f"{ui.cient(dif, 1)}", "Lectura": "Método de los nudos a mano (simetría)"},
-        {"Comprobación": f"Máx |x − {comp['libreria_usada']}|", "Valor": f"{ui.cient(comp['max_diferencia_absoluta'], 1)}", "Lectura": comp["interpretacion"]},
-        {"Comprobación": "κ₂(A)", "Valor": f"{ui.cient(g['condicion_A'], 2)}", "Lectura": f"{g['estado_condicion']}. {g['advertencia_condicion']}"},
+        {"Comprobación": "Residual ‖A·x − b‖∞ (kN)", "Valor": f"{g['norma_residuo_inf']:.2e}", "Lectura": "≈ 0: se satisface cada ecuación de equilibrio"},
+        {"Comprobación": "Σ Fx, Σ Fy global (kN)", "Valor": f"{eq['suma_Fx_kN']:.1e}, {eq['suma_Fy_kN']:.1e}", "Lectura": "Cargas + reacciones en equilibrio"},
+        {"Comprobación": "Σ M respecto al origen (kN·m)", "Valor": f"{eq['suma_M_kNm']:.1e}", "Lectura": "Equilibrio de momentos"},
+        {"Comprobación": "Máx |x − solución analítica| (kN)", "Valor": f"{dif:.1e}", "Lectura": "Método de los nudos a mano (simetría)"},
+        {"Comprobación": f"Máx |x − {comp['libreria_usada']}|", "Valor": f"{comp['max_diferencia_absoluta']:.1e}", "Lectura": comp["interpretacion"]},
+        {"Comprobación": "κ₂(A)", "Valor": f"{g['condicion_A']:.2e}", "Lectura": f"{g['estado_condicion']}. {g['advertencia_condicion']}"},
     ]))
     st.markdown("#### Interpretación")
     ab, bc = r["fuerzas_kN"]["AB"], r["fuerzas_kN"]["DE"]
     st.markdown(
         f"- Las barras **inferiores (AB, BC)** trabajan en **tracción** (~{ab:.1f} kN) y la **cuerda superior DE** en **compresión** "
         f"(~{abs(bc):.1f} kN), como en una viga biapoyada; las diagonales AD y EC están en compresión y las barras DB y BE resultan de fuerza nula para esta carga simétrica.\n"
-        f"- Cada apoyo vertical toma W/2 = {W / 2:.1f} kN y la reacción horizontal es nula (sin cargas horizontales).\n"
+        f"- Cada apoyo vertical toma $W/2$ = {W / 2:.1f} kN y la reacción horizontal es nula (sin cargas horizontales).\n"
         "- **Límites:** es solo el peso del agua. No incluye peso propio del canal y de la armadura, sobrecargas, viento, sismo, pandeo de barras en compresión, "
         "ni factores de seguridad: **no es una verificación estructural**.")
 
     with st.expander("Auditoría: por qué no se usó la matriz 3×3 de la propuesta inicial"):
-        theta = st.slider("Ángulo θ del triángulo de referencia (°)", 15, 75, 30, key="aud_theta")
+        theta = st.slider(r"Ángulo $\theta$ del triángulo de referencia (°)", 15, 75, 30, key="aud_theta")
         a = es.auditar_matriz_gemini(math.radians(theta), 100.0)
         ui.tabla(pd.DataFrame([
             {"Barra": "AB", "Propuesta (T_AB)": a["gemini"]["T_AB"], "Triángulo bien planteado (numérico)": a["referencia_numerica"]["AB"], "Analítica": a["referencia_analitica"]["AB"]},
             {"Barra": "AC", "Propuesta (T_AC)": a["gemini"]["T_AC"], "Triángulo bien planteado (numérico)": a["referencia_numerica"]["AC"], "Analítica": a["referencia_analitica"]["AC"]},
             {"Barra": "BC", "Propuesta (T_BC)": a["gemini"]["T_BC"], "Triángulo bien planteado (numérico)": a["referencia_numerica"]["BC"], "Analítica": a["referencia_analitica"]["BC"]},
         ]).round(4))
-        st.markdown("La matriz propuesta no es una armadura determinada: su 3.ª fila (T_AB = 0) no corresponde a ningún equilibrio de nudo, "
-                    "omite las reacciones y obliga a T_AB = 0, lo que viola el equilibrio horizontal en A. Resultados con P = 100 kN.")
+        st.markdown(r"La matriz propuesta no es una armadura determinada: su 3.ª fila ($T_{AB}=0$) no corresponde a ningún equilibrio de nudo, "
+                    r"omite las reacciones y obliga a $T_{AB}=0$, lo que viola el equilibrio horizontal en A. Resultados con $P=100$ kN.")
 
 
 # ----------------------------------------------------------------------------- sistema propio
 def _propio() -> None:
-    st.markdown("Resuelva **cualquier** sistema A·x = b de forma independiente (no depende de las otras pestañas).")
+    st.markdown(r"Resuelva **cualquier** sistema $\mathbf{A}\mathbf{x}=\mathbf{b}$ de forma independiente (no depende de las otras pestañas).")
     preset = st.selectbox("Sistema", list(EJEMPLOS) + [PERSONALIZADO], key="lin_preset")
     if preset == PERSONALIZADO:
-        n = int(st.number_input("Orden n", 2, 8, 3, 1, key="lin_n"))
+        n = int(st.number_input(r"Orden $n$", 2, 8, 3, 1, key="lin_n"))
         A0 = (2 * np.eye(n) - np.eye(n, k=1) - np.eye(n, k=-1)).tolist()
         b0 = [1.0] * n
     else:
@@ -209,11 +210,11 @@ def _propio() -> None:
     ui.tabla(pd.DataFrame({"Variable": cols, "Valor": g["x"], "Residual r_i = (A·x − b)_i": g["residuo"]}).round(10))
     comp = comparar_con_libreria_lineal(A_np, b_np, g["x"])
     ui.tabla(pd.DataFrame([
-        {"Diagnóstico": "‖r‖∞ / ‖b‖∞", "Valor": f"{ui.cient(g['residuo_relativo'], 2)}"},
-        {"Diagnóstico": "κ₂(A)", "Valor": f"{ui.cient(g['condicion_A'], 3)} — {g['estado_condicion']}"},
-        {"Diagnóstico": f"Máx |x − {comp['libreria_usada']}|", "Valor": f"{ui.cient(comp['max_diferencia_absoluta'], 2)}"},
+        {"Diagnóstico": "‖r‖∞ / ‖b‖∞", "Valor": f"{g['residuo_relativo']:.2e}"},
+        {"Diagnóstico": "κ₂(A)", "Valor": f"{g['condicion_A']:.3e} — {g['estado_condicion']}"},
+        {"Diagnóstico": f"Máx |x − {comp['libreria_usada']}|", "Valor": f"{comp['max_diferencia_absoluta']:.2e}"},
     ]))
-    st.caption(g["advertencia_condicion"] + " Un residual pequeño NO garantiza un error pequeño en x si κ(A) es grande.")
+    st.caption(nt.mensaje(g["advertencia_condicion"]) + r" Un residual pequeño NO garantiza un error pequeño en $\mathbf{x}$ si $\kappa(\mathbf{A})$ es grande.")
 
 
 # ----------------------------------------------------------------------------- procedimiento
@@ -223,15 +224,15 @@ def mostrar_gauss(g: dict, etiquetas: list[str], clave: str) -> None:
         return
     with st.expander("Procedimiento: pivoteo parcial, multiplicadores y matriz tras cada etapa", expanded=False):
         encab = list(etiquetas) + ["b"]
-        st.markdown("Matriz aumentada inicial [A | b]:")
+        st.markdown(r"Matriz aumentada inicial $[\mathbf{A}\mid\mathbf{b}]$:")
         ui.tabla(pd.DataFrame(g["matrices_etapas"][0], columns=encab).round(4))
         for paso, M in zip(g["historial_pasos"], g["matrices_etapas"][1:]):
-            sw = (f"intercambio F{paso['filas_intercambiadas'][0]} ↔ F{paso['filas_intercambiadas'][1]}"
+            sw = (f"intercambio {nt.fila(paso['filas_intercambiadas'][0])} ↔ {nt.fila(paso['filas_intercambiadas'][1])}"
                   if paso["hubo_intercambio"] else "sin intercambio de filas")
-            st.markdown(f"**Etapa k = {paso['paso_k']}** — columna {paso['columna']}, pivote = {paso['valor_pivote']:+.4f}, {sw}.")
+            st.markdown(f"**Etapa $k={paso['paso_k']}$** — columna {paso['columna']}, pivote $p={paso['valor_pivote']:+.4f}$, {sw}.")
             if paso["multiplicadores"]:
                 ui.tabla(pd.DataFrame([{"Operación": f"F{m['fila_afectada']} ← F{m['fila_afectada']} − ({m['factor_m']:.4f})·F{m['fila_pivote']}",
                                         "m_ik": m["factor_m"]} for m in paso["multiplicadores"]]).round(6))
             ui.tabla(pd.DataFrame(M, columns=encab).round(4))
-        st.markdown("**Sustitución regresiva** sobre la matriz triangular [U | c] de la última etapa: "
-                    "x_n = c_n / u_nn;  x_i = (c_i − Σ_{j>i} u_ij·x_j) / u_ii.")
+        st.markdown(r"**Sustitución regresiva** sobre la matriz triangular $[\mathbf{U}\mid\mathbf{c}]$ de la última etapa:")
+        st.latex(r"x_n=\frac{c_n}{u_{nn}},\qquad x_i=\frac{c_i-\sum_{j=i+1}^{n}u_{ij}\,x_j}{u_{ii}},\quad i=n-1,\dots,1")

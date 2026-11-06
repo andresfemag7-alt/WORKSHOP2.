@@ -78,12 +78,13 @@ def fmt(x, n: int = 4) -> str:
 
 def ficha(clave: str) -> None:
     t = textos.TABS[clave]
-    st.markdown(
-        f'<div class="ficha"><div><b>Problema físico:</b> {t["problema"]}</div>'
-        f'<div><b>Método numérico:</b> {t["metodo"]}</div>'
-        f'<div><b>Datos que entran:</b> {t["entradas"]}</div>'
-        f'<div><b>Resultado:</b> {t["resultado"]}</div>'
-        f'<div><b>Límites:</b> {t["limites"]}</div></div>', unsafe_allow_html=True)
+    # Markdown (no HTML) para que las fórmulas en LaTeX ($...$) se rendericen.
+    with st.container(border=True):
+        st.markdown(f"**Problema físico:** {t['problema']}")
+        st.markdown(f"**Método numérico:** {t['metodo']}")
+        st.markdown(f"**Datos que entran:** {t['entradas']}")
+        st.markdown(f"**Resultado:** {t['resultado']}")
+        st.markdown(f"**Límites:** {t['limites']}")
 
 
 def cabecera_tab(clave: str) -> None:

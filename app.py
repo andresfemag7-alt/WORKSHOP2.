@@ -17,8 +17,14 @@ st.markdown(f'<p class="app-titulo">{textos.APP_TITULO}</p><p class="app-sub">{t
 with st.expander(" Alcance del modelo (léalo antes de interpretar resultados)", expanded=False):
     st.markdown(textos.ADVERTENCIA_MODELO)
     st.markdown(textos.CONTEXTO)
-    for paso, desc in textos.FLUJO_PASOS:
-        st.markdown(f"- **{paso}:** {desc}")
+    st.markdown(textos.CADENA)
+    for m in textos.GUIA_METODOS:
+        with st.container(border=True):
+            st.markdown("**" + m["pestana"] + "**")
+            st.markdown("**Pregunta.** " + m["pregunta"])
+            st.markdown("**Cómo funciona.** " + m["metodo"])
+            st.markdown("**Cómo se usa en la app.** " + m["uso"])
+            st.markdown("**Entrega a la cadena:** " + m["entrega"])
 
 panel = st.container()  # se rellena al final para reflejar los valores publicados en esta misma ejecución
 
