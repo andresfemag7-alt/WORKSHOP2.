@@ -101,12 +101,17 @@ def aplicar_tema() -> None:
     fondo_app()
 
 
-@st.cache_data(show_spinner=False)
-def _collage_b64() -> str:
-    import base64
+def _ruta_collage():
     from pathlib import Path
-    ruta = Path(__file__).resolve().parents[2] / "assets" / "collage.jpg"
-    return base64.b64encode(ruta.read_bytes()).decode()
+    return Path(__file__).resolve().parents[2] / "assets" / "collage.jpg"
+
+
+@st.cache_data(show_spinner=False)
+def _collage_b64(version: int) -> str:
+    """`version` (fecha de modificación del archivo) forma parte de la clave de caché: si la imagen cambia,
+    se vuelve a leer en lugar de servir la copia antigua guardada en memoria."""
+    import base64
+    return base64.b64encode(_ruta_collage().read_bytes()).decode()
 
 
 def fondo_app() -> None:
@@ -114,7 +119,7 @@ def fondo_app() -> None:
     st.markdown(
         '<style>'
         '.stApp {background-image: linear-gradient(rgba(246,249,251,.15), rgba(246,249,251,.15)), '
-        f'url("data:image/jpeg;base64,{_collage_b64()}");'
+        f'url("data:image/jpeg;base64,{_collage_b64(_ruta_collage().stat().st_mtime_ns)}");'
         'background-size: 100% 100%; background-position: center; background-attachment: fixed; background-repeat: no-repeat;}'
         '[data-testid="stHeader"] {background: transparent;}'
         '.block-container {background: rgba(255,255,255,.80); border-radius: 10px; padding: 1.4rem 1.6rem 2rem 1.6rem;}'
