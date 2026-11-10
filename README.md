@@ -12,7 +12,7 @@
 
 El proyecto cuenta con una aplicación interactiva desarrollada en Python mediante Streamlit, que permite ejecutar métodos numéricos, visualizar sus procedimientos y analizar los resultados dentro de un mismo contexto de ingeniería civil.
 
-**Acceder a la aplicación web:(https://workshop2-b4rrxzqpizpjii7sti5y5c.streamlit.app/)**
+**Acceder a la aplicación web: https://workshop2-b4rrxzqpizpjii7sti5y5c.streamlit.app/**
 
 ## Descripción del proyecto
 
