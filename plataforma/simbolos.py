@@ -3,6 +3,7 @@ Solo cambia la presentación; no toca ningún cálculo."""
 from __future__ import annotations
 
 import functools
+import html
 import re
 
 _MAPA = {"Q_total": r"$Q_{total}$", "Q_d": r"$Q_d$", "y_c": r"$y_c$", "V_c": r"$V_c$"}
@@ -32,6 +33,25 @@ def bonito(texto: str) -> str:
         return f"{m.group(1)}×10{str(int(m.group(2))).translate(_SUP)}"
 
     return re.sub(r"(\d+(?:\.\d+)?)e([+-]\d+)", _cient, texto)
+
+
+def bonito_html(texto: str) -> str:
+    """Como `bonito`, pero con HTML real (para `tabla_html`, que sí admite <i>, <b>, <sub> y <sup>):
+    ||dx||_inf → ‖Δx‖ con ∞ como subíndice, cond → κ(J), y_c → y con subíndice c, 2.72e-16 → 2.72×10 con exponente −16 en superíndice."""
+    if not isinstance(texto, str):
+        return texto
+    t = html.escape(texto.replace("<=", "≤").replace(">=", "≥"), quote=False)
+    t = t.replace("||dx||_inf", "‖Δ<b>x</b>‖<sub>∞</sub>").replace("||F||_inf", "‖<b>F</b>‖<sub>∞</sub>")
+    t = t.replace("|x|", "‖<b>x</b>‖")
+    t = re.sub(r"\bcond\s*=", "<i>κ</i>(<b>J</b>) =", t)
+    t = re.sub(r"(?<![\w])([A-Za-zρα])_(\w+)", r"<i>\1</i><sub>\2</sub>", t)
+
+    def _cient(m):
+        if float(m.group(0)) == 0:
+            return "0"
+        return f"{m.group(1)}×10<sup>{str(int(m.group(2))).replace('-', '−')}</sup>"
+
+    return re.sub(r"(\d+(?:\.\d+)?)e([+-]\d+)", _cient, t)
 
 
 def instalar() -> None:

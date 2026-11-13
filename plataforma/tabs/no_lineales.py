@@ -130,20 +130,23 @@ def render() -> None:
     m4.metric("Área mojada $b \\cdot y_c$", f"{comp['area_mojada_m2']:.4f} m²")
     st.markdown(f'<div class="caja-res">Newton (sistema 2×2): {simbolos.bonito(nw["motivo_parada"])}</div>', unsafe_allow_html=True)
 
-    ui.tabla(pd.DataFrame([
-        {"Método": "Newton-Raphson, sistema 2×2 (y, V)", "Convergió": "sí" if nw["convergio"] else "no", "Iteraciones": nw["iteraciones"],
-         "y_c (m)": nw["x_sol"][0], "Motivo de parada": simbolos.bonito(nw["motivo_parada"])},
-        {"Método": "Punto fijo simultáneo, sistema 2×2", "Convergió": "sí" if pf["convergio"] else "no", "Iteraciones": pf["iteraciones"],
-         "y_c (m)": pf["x_sol"][0] if pf["x_sol"] else None, "Motivo de parada": simbolos.bonito(pf["motivo_parada"])},
-        {"Método": "Newton escalar 1×1 sobre f(y) = Q_d² − g·b²·y³", "Convergió": "sí" if esc["convergio"] else "no", "Iteraciones": esc["iteraciones"],
-         "y_c (m)": esc["x_sol"][0] if esc["x_sol"] else None, "Motivo de parada": simbolos.bonito(esc["motivo_parada"])},
-    ]))
-
-    st.markdown("**Comprobaciones hidráulicas**")
-    lib = d.get("lib", {})
     I = lambda x: f"<i>{x}</i>"
     yc = I("y") + "<sub>c</sub>"
     Qd = I("Q") + "<sub>d</sub>"
+
+    def fila_metodo(nombre, r):
+        return {"Método": nombre, "Convergió": "sí" if r["convergio"] else "no", "Iteraciones": str(r["iteraciones"]),
+                f"{yc} (m)": f"{r['x_sol'][0]:.4f}" if r.get("x_sol") else "—",
+                "Motivo de parada": simbolos.bonito_html(r["motivo_parada"])}
+
+    ui.tabla_html([
+        fila_metodo(f"Newton-Raphson, sistema 2×2 ({I('y')}, {I('V')})", nw),
+        fila_metodo("Punto fijo simultáneo, sistema 2×2", pf),
+        fila_metodo(f"Newton escalar 1×1 sobre {I('f')}({I('y')}) = {Qd}² − {I('g')}·{I('b')}²·{I('y')}³", esc),
+    ], izquierda=True)
+
+    st.markdown("**Comprobaciones hidráulicas**")
+    lib = d.get("lib", {})
     ui.tabla_html([
         {"Comprobación": f"{yc} analítica = ({Qd}²/({I('g')}·{I('b')}²))<sup>1/3</sup> [m]", "Valor": f"{comp['y_analitica_m']:.8f}",
          "Diferencia": f"con Newton: {ui.cient(comp['diferencia_con_analitica_m'], 1)} m"},
