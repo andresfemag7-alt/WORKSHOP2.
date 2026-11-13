@@ -1,9 +1,7 @@
 """Pestaña 1 · Sistemas lineales: equilibrio estático de la armadura que soporta el canal."""
 from __future__ import annotations
 
-import html
 import math
-import re
 
 import numpy as np
 import pandas as pd
@@ -25,59 +23,6 @@ EJEMPLOS = {
     "Caso 3 · 4×4 tridiagonal": ([[1, 1, 0, 0], [-1, 2, 1, 0], [0, -1, 2, 1], [0, 0, -1, 2]], [3, 6, 8, 5]),
 }
 PERSONALIZADO = "Personalizado n×n"
-
-# ----------------------------------------------------------------------------- formato de tablas (estilo tabla_html, a la izquierda)
-_SUP_MENOS = "−"
-
-
-def _I(x: str) -> str:
-    return f"<i>{x}</i>"
-
-
-def _etq(nombre: str) -> str:
-    """Etiqueta de incógnita/variable en HTML: Rx_A → R<sub>x,A</sub> cursiva, x1 → x<sub>1</sub>, AB → AB."""
-    m = re.fullmatch(r"R([xy])_(\w+)", nombre)
-    if m:
-        return f"{_I('R')}<sub>{_I(m.group(1))}, {m.group(2)}</sub>"
-    m = re.fullmatch(r"([A-Za-z])(\d+)", nombre)
-    if m:
-        return f"{_I(m.group(1))}<sub>{m.group(2)}</sub>"
-    return nombre
-
-
-def _ecuacion(codigo: str) -> str:
-    """'A:Fx' → 'Nudo A: ΣF<sub>x</sub> = 0'."""
-    nudo, eje = codigo.split(":")
-    return f"Nudo {nudo}: Σ{_I('F')}<sub>{_I(eje[1])}</sub> = 0"
-
-
-def _cient_html(x: float, n: int = 2) -> str:
-    """1.42e-14 → 1.42×10 con exponente −14 en superíndice (el cero se muestra como 0)."""
-    x = float(x)
-    if x == 0:
-        return "0"
-    mant, exp = f"{x:.{n}e}".split("e")
-    return f"{mant.replace('-', _SUP_MENOS)}×10<sup>{int(exp)}</sup>".replace("<sup>-", f"<sup>{_SUP_MENOS}")
-
-
-def _num(x, d: int = 4) -> str:
-    """Número con hasta ``d`` decimales (sin ceros sobrantes) y signo menos tipográfico."""
-    x = float(x)
-    t = f"{round(x, d) + 0.0:.{d}f}".rstrip("0").rstrip(".")
-    return (t or "0").replace("-", _SUP_MENOS)
-
-
-def _texto(t: str) -> str:
-    """Texto de los módulos con notación: kappa(A) → κ(A), «en x» → «en x» en negrita, <= → ≤."""
-    t = html.escape(str(t), quote=False).replace("<=", "≤").replace(">=", "≥")
-    t = t.replace("kappa(A)", f"{_I('κ')}(<b>A</b>)").replace("kappa", _I("κ"))
-    return re.sub(r"\ben x\b", "en <b>x</b>", t)
-
-
-def _matriz(M, etiquetas: list[str]) -> None:
-    """Matriz (aumentada o no) con encabezados en cursiva con subíndice y entradas justificadas a la izquierda."""
-    cols = [_etq(e) if e != "b" else "<b>b</b>" for e in etiquetas]
-    ui.tabla_html([{c: _num(v) for c, v in zip(cols, fila)} for fila in np.asarray(M, dtype=float)], izquierda=True)
 
 
 def render() -> None:
@@ -174,25 +119,25 @@ def _armadura() -> None:
     cA, cB = st.columns([3, 2])
     with cA:
         etq = sis["incognitas"]
-        ecs = [_ecuacion(e) for e in sis["ecuaciones"]]
-        ui.tabla_html([{"Ecuación": ec, **{_etq(n): _num(v) for n, v in zip(etq, fila)}}
-                       for ec, fila in zip(ecs, np.asarray(sis["A"], dtype=float))], izquierda=True)
+        dfA = pd.DataFrame(sis["A"], columns=etq)
+        dfA.insert(0, "Ecuación", [f"{e.split(':')[0]}: {DESCRIPCION_ECUACION[e.split(':')[1]]}" for e in sis["ecuaciones"]])
+        ui.tabla(dfA.round(4))
     with cB:
-        ui.tabla_html([{"Ecuación": ec, f"<b>b</b> = −{_I('P')}<sub>ext</sub> (kN)": _num(v)}
-                       for ec, v in zip(ecs, sis["b"])], izquierda=True)
+        dfb = pd.DataFrame({"Ecuación": dfA["Ecuación"], "b = −P_ext (kN)": sis["b"]})
+        ui.tabla(dfb.round(4))
         st.caption(r"Incógnitas $\mathbf{x}$: fuerzas axiales de las 7 barras (kN; **+ tracción, − compresión**) y 3 reacciones (kN). "
                    f"10 ecuaciones, 10 incógnitas, rango = {sis['rango']} → armadura **estáticamente determinada y estable**.")
 
     mostrar_gauss(r["gauss"], sis["incognitas"], "arm")
 
     st.markdown("#### Resultados")
+    barras = pd.DataFrame([{"Barra": n, "Nudos": f"{a}–{b_}", "Longitud (m)": sis["longitudes"][n],
+                            "Fuerza axial (kN)": r["fuerzas_kN"][n], "Estado": r["estado_barras"][n]} for n, a, b_ in sis["barras"]])
     c1, c2 = st.columns([3, 2])
     with c1:
-        ui.tabla_html([{"Barra": n, "Nudos": f"{a}–{b_}", "Longitud (m)": _num(sis["longitudes"][n]),
-                        f"Fuerza axial {_I('N')} (kN)": _num(r["fuerzas_kN"][n]), "Estado": r["estado_barras"][n]}
-                       for n, a, b_ in sis["barras"]], izquierda=True)
+        ui.tabla(barras.round(4))
     with c2:
-        ui.tabla_html([{"Reacción": _etq(k), "Valor (kN)": _num(v)} for k, v in r["reacciones_kN"].items()], izquierda=True)
+        ui.tabla(pd.DataFrame([{"Reacción": k, "Valor (kN)": v} for k, v in r["reacciones_kN"].items()]).round(4))
     ui.grafica(graficas.fig_armadura(sis, r), "fig_armadura")
 
     g = r["gauss"]
@@ -201,19 +146,14 @@ def _armadura() -> None:
     ref = es.solucion_analitica_warren(L, H, W)
     dif = max(abs(r["fuerzas_kN"][k] - ref[k]) for k in r["fuerzas_kN"])
     comp = comparar_con_libreria_lineal(sis["A"], sis["b"], g["x"])
-    C = _cient_html
-    ui.tabla_html([
-        {"Comprobación": f"Residual ‖<b>A</b>·<b>x</b> − <b>b</b>‖<sub>∞</sub> (kN)", "Valor": C(g["norma_residuo_inf"], 2),
-         "Lectura": "≈ 0: se satisface cada ecuación de equilibrio"},
-        {"Comprobación": f"Σ{_I('F')}<sub>{_I('x')}</sub>, Σ{_I('F')}<sub>{_I('y')}</sub> global (kN)",
-         "Valor": f"{C(eq['suma_Fx_kN'], 1)}, {C(eq['suma_Fy_kN'], 1)}", "Lectura": "Cargas + reacciones en equilibrio"},
-        {"Comprobación": f"Σ{_I('M')} respecto al origen (kN·m)", "Valor": C(eq["suma_M_kNm"], 1), "Lectura": "Equilibrio de momentos"},
-        {"Comprobación": f"Máx |<b>x</b> − solución analítica| (kN)", "Valor": C(dif, 1), "Lectura": "Método de los nudos a mano (simetría)"},
-        {"Comprobación": f"Máx |<b>x</b> − <code>{comp['libreria_usada']}</code>|", "Valor": C(comp["max_diferencia_absoluta"], 1),
-         "Lectura": _texto(comp["interpretacion"])},
-        {"Comprobación": f"{_I('κ')}<sub>2</sub>(<b>A</b>)", "Valor": C(g["condicion_A"], 2),
-         "Lectura": f"{_texto(g['estado_condicion'])}. {_texto(g['advertencia_condicion'])}"},
-    ], izquierda=True)
+    ui.tabla(pd.DataFrame([
+        {"Comprobación": "Residual ‖A·x − b‖∞ (kN)", "Valor": ui.cient(g['norma_residuo_inf'], 2), "Lectura": "≈ 0: se satisface cada ecuación de equilibrio"},
+        {"Comprobación": "Σ Fx, Σ Fy global (kN)", "Valor": f"{ui.cient(eq['suma_Fx_kN'], 1)}, {ui.cient(eq['suma_Fy_kN'], 1)}", "Lectura": "Cargas + reacciones en equilibrio"},
+        {"Comprobación": "Σ M respecto al origen (kN·m)", "Valor": ui.cient(eq['suma_M_kNm'], 1), "Lectura": "Equilibrio de momentos"},
+        {"Comprobación": "Máx |x − solución analítica| (kN)", "Valor": ui.cient(dif, 1), "Lectura": "Método de los nudos a mano (simetría)"},
+        {"Comprobación": f"Máx |x − {comp['libreria_usada']}|", "Valor": ui.cient(comp['max_diferencia_absoluta'], 1), "Lectura": comp["interpretacion"]},
+        {"Comprobación": "κ₂(A)", "Valor": ui.cient(g['condicion_A'], 2), "Lectura": f"{g['estado_condicion']}. {g['advertencia_condicion']}"},
+    ]))
     st.markdown("#### Interpretación")
     ab, bc = r["fuerzas_kN"]["AB"], r["fuerzas_kN"]["DE"]
     st.markdown(
@@ -226,10 +166,11 @@ def _armadura() -> None:
     with st.expander("Auditoría: por qué no se usó la matriz 3×3 de la propuesta inicial"):
         theta = st.slider(r"Ángulo $\theta$ del triángulo de referencia (°)", 15, 75, 30, key="aud_theta")
         a = es.auditar_matriz_gemini(math.radians(theta), 100.0)
-        ui.tabla_html([
-            {"Barra": n, f"Propuesta ({_I('T')}) (kN)": _num(a["gemini"][f"T_{n}"]),
-             "Triángulo bien planteado (numérico) (kN)": _num(a["referencia_numerica"][n]),
-             "Analítica (kN)": _num(a["referencia_analitica"][n])} for n in ("AB", "AC", "BC")], izquierda=True)
+        ui.tabla(pd.DataFrame([
+            {"Barra": "AB", "Propuesta (T_AB)": a["gemini"]["T_AB"], "Triángulo bien planteado (numérico)": a["referencia_numerica"]["AB"], "Analítica": a["referencia_analitica"]["AB"]},
+            {"Barra": "AC", "Propuesta (T_AC)": a["gemini"]["T_AC"], "Triángulo bien planteado (numérico)": a["referencia_numerica"]["AC"], "Analítica": a["referencia_analitica"]["AC"]},
+            {"Barra": "BC", "Propuesta (T_BC)": a["gemini"]["T_BC"], "Triángulo bien planteado (numérico)": a["referencia_numerica"]["BC"], "Analítica": a["referencia_analitica"]["BC"]},
+        ]).round(4))
         st.markdown(r"La matriz propuesta no es una armadura determinada: su 3.ª fila ($T_{AB}=0$) no corresponde a ningún equilibrio de nudo, "
                     r"omite las reacciones y obliga a $T_{AB}=0$, lo que viola el equilibrio horizontal en A. Resultados con $P=100$ kN.")
 
@@ -266,15 +207,13 @@ def _propio() -> None:
         return
     mostrar_gauss(g, cols, "propio")
     st.markdown("#### Solución")
-    ui.tabla_html([{"Variable": _etq(c), "Valor": _num(v, 10),
-                    f"Residual {_I('r')}<sub>{_I('i')}</sub> = (<b>A</b>·<b>x</b> − <b>b</b>)<sub>{_I('i')}</sub>": _cient_html(rr, 2)}
-                   for c, v, rr in zip(cols, g["x"], g["residuo"])], izquierda=True)
+    ui.tabla(pd.DataFrame({"Variable": cols, "Valor": g["x"], "Residual r_i = (A·x − b)_i": g["residuo"]}).round(10))
     comp = comparar_con_libreria_lineal(A_np, b_np, g["x"])
-    ui.tabla_html([
-        {"Diagnóstico": "‖<b>r</b>‖<sub>∞</sub> / ‖<b>b</b>‖<sub>∞</sub>", "Valor": _cient_html(g["residuo_relativo"], 2)},
-        {"Diagnóstico": f"{_I('κ')}<sub>2</sub>(<b>A</b>)", "Valor": f"{_cient_html(g['condicion_A'], 3)} — {_texto(g['estado_condicion'])}"},
-        {"Diagnóstico": f"Máx |<b>x</b> − <code>{comp['libreria_usada']}</code>|", "Valor": _cient_html(comp["max_diferencia_absoluta"], 2)},
-    ], izquierda=True)
+    ui.tabla(pd.DataFrame([
+        {"Diagnóstico": "‖r‖∞ / ‖b‖∞", "Valor": f"{g['residuo_relativo']:.2e}"},
+        {"Diagnóstico": "κ₂(A)", "Valor": f"{g['condicion_A']:.3e} — {g['estado_condicion']}"},
+        {"Diagnóstico": f"Máx |x − {comp['libreria_usada']}|", "Valor": f"{comp['max_diferencia_absoluta']:.2e}"},
+    ]))
     st.caption(nt.mensaje(g["advertencia_condicion"]) + r" Un residual pequeño NO garantiza un error pequeño en $\mathbf{x}$ si $\kappa(\mathbf{A})$ es grande.")
 
 
@@ -286,16 +225,16 @@ def mostrar_gauss(g: dict, etiquetas: list[str], clave: str) -> None:
     with st.expander("Procedimiento: pivoteo parcial, multiplicadores y matriz tras cada etapa", expanded=False):
         encab = list(etiquetas) + ["b"]
         st.markdown(r"Matriz aumentada inicial $[\mathbf{A}\mid\mathbf{b}]$:")
-        _matriz(g["matrices_etapas"][0], encab)
+        ui.tabla(pd.DataFrame(g["matrices_etapas"][0], columns=encab).round(4))
         for paso, M in zip(g["historial_pasos"], g["matrices_etapas"][1:]):
             sw = (f"intercambio {nt.fila(paso['filas_intercambiadas'][0])} ↔ {nt.fila(paso['filas_intercambiadas'][1])}"
                   if paso["hubo_intercambio"] else "sin intercambio de filas")
             st.markdown(f"**Etapa $k={paso['paso_k']}$** — columna {paso['columna']}, pivote $p={paso['valor_pivote']:+.4f}$, {sw}.")
             if paso["multiplicadores"]:
-                ui.tabla_html([{"Operación": (f"{_I('F')}<sub>{m['fila_afectada']}</sub> ← {_I('F')}<sub>{m['fila_afectada']}</sub> "
-                                              f"− ({_num(m['factor_m'], 4)})·{_I('F')}<sub>{m['fila_pivote']}</sub>"),
-                                f"{_I('m')}<sub>{_I('ik')}</sub>": _num(m["factor_m"], 6)} for m in paso["multiplicadores"]], izquierda=True)
-            _matriz(M, encab)
+                ui.tabla(pd.DataFrame([{"Operación": f"F{m['fila_afectada']} ← F{m['fila_afectada']} − ({m['factor_m']:.4f})·F{m['fila_pivote']}",
+                                        "m_ik": m["factor_m"]} for m in paso["multiplicadores"]]).round(6))
+            ui.tabla(pd.DataFrame(M, columns=encab).round(4))
         st.markdown(r"**Sustitución regresiva** sobre la matriz triangular $[\mathbf{U}\mid\mathbf{c}]$ de la última etapa:")
         st.latex(r"x_n=\frac{c_n}{u_{nn}},\qquad x_i=\frac{c_i-\sum_{j=i+1}^{n}u_{ij}\,x_j}{u_{ii}},\quad i=n-1,\dots,1")
+
 
