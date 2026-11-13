@@ -53,12 +53,22 @@ def render() -> None:
              r"P_n(h)=a_0+\sum_{k=1}^{n}a_k\prod_{j=0}^{k-1}(h-h_j)")
     T = nw["tabla_completa"]
     n = len(h)
-    tabla = {"i": list(range(n)), "h_i (m)": [f"{x:.5f}" for x in h], "Q_i = f[x_i]": [f"{T[i, 0]:.6f}" for i in range(n)]}
+    I = lambda x: f"<i>{x}</i>"
+    xi = I("x") + "<sub>i</sub>"
+    F = lambda x, d=5: f"{x:.{d}f}".replace("-", "−")
+    G = lambda x: f"{x:.6g}".replace("-", "−")
+    cols = {I("i"): list(range(n)), f"{I('h')}<sub>i</sub> (m)": [F(x) for x in h],
+            f"{I('Q')}<sub>i</sub> = {I('f')}[{xi}]": [F(T[i, 0], 6) for i in range(n)]}
     for j in range(1, n):
-        tabla[f"Orden {j}"] = [f"{T[i, j]:.6g}" if i + j < n else "" for i in range(n)]
-    ui.tabla(pd.DataFrame(tabla))
+        ult = f"{I('x')}<sub>i+{j}</sub>"
+        arg = f"{xi}, {ult}" if j == 1 else (f"{xi}, {I('x')}<sub>i+1</sub>, {ult}" if j == 2 else f"{xi}, …, {ult}")
+        cols[f"Orden {j}<br>{I('f')}[{arg}]"] = [G(T[i, j]) if i + j < n else "" for i in range(n)]
+    ui.tabla_html([{c: v[i] for c, v in cols.items()} for i in range(n)], izquierda=True)
     coef = nw["coeficientes_newton"]
-    ui.tabla(pd.DataFrame({"k": range(n), "Coeficiente": [f"a_{k} = f[x_0..x_{k}]" for k in range(n)], "Valor": coef}).round(8))
+    xs = lambda j: f"{I('x')}<sub>{j}</sub>"
+    arg_k = lambda k: ", ".join(xs(j) for j in range(k + 1)) if k <= 2 else f"{xs(0)}, …, {xs(k)}"
+    ui.tabla_html([{I("k"): k, "Coeficiente": f"{I('a')}<sub>{k}</sub> = {I('f')}[{arg_k(k)}]",
+                    "Valor": F(coef[k], 8)} for k in range(n)], izquierda=True)
     st.code("P(h) = " + nw["expresion_newton_str"], language="text")
     with st.expander("Forma canónica expandida"):
         st.code("P(h) = " + nw["expresion_expandida_str"], language="text")
@@ -86,7 +96,8 @@ def render() -> None:
                 else:
                     ca = ex["antes"]["coeficientes_newton"]
                     cd = ex["despues"]["coeficientes_newton"]
-                    ui.tabla(pd.DataFrame({"k": range(len(cd)), "a_k antes": list(ca) + [None], "a_k después": cd}).round(8))
+                    ui.tabla_html([{I("k"): k, f"{I('a')}<sub>k</sub> antes": F(ca[k], 8) if k < len(ca) else "—",
+                                    f"{I('a')}<sub>k</sub> después": F(cd[k], 8)} for k in range(len(cd))], izquierda=True)
                     st.markdown(f"- Coeficientes previos conservados: **{'sí' if ex['coeficientes_previos_conservados'] else 'NO'}**.\n"
                                 f"- Coeficiente nuevo a_{len(cd) - 1} = {ex['coeficiente_nuevo']:.6g}.\n"
                                 f"- Estimación en h = {h_c:.4f} m: {ex['antes']['valor_evaluado']:.6f} → {ex['despues']['valor_evaluado']:.6f} m³/s "
@@ -107,7 +118,8 @@ def render() -> None:
     st.caption(f"Máx |Newton − Lagrange| sobre el intervalo = {ui.cient(dif_ln, 2)} m³/s ({ui.cient(dif_ln / esc, 1)} relativo al caudal máximo): redondeo de punto flotante.")
 
     preds = {m: float(f(h_c)) for m, f in curvas.items()}
-    ui.tabla(pd.DataFrame([{"Método": m, f"Q(h = {h_c:.4f} m) (m³/s)": v, "Diferencia con Lagrange (m³/s)": v - preds["Lagrange"]} for m, v in preds.items()]).round(6))
+    ui.tabla_html([{"Método": m, f"{I('Q')}({I('h')} = {h_c:.4f} m) (m³/s)": F(v, 6),
+                    "Diferencia con Lagrange (m³/s)": F(v - preds["Lagrange"], 6)} for m, v in preds.items()], izquierda=True)
     if nw["extrapolando"]:
         st.warning("El nivel consultado está fuera del intervalo: las tres cifras son extrapolaciones y el spline usa el polinomio cúbico de su tramo extremo.")
 
@@ -118,18 +130,20 @@ def render() -> None:
     else:
         filas = []
         for v in vals:
-            fila = {"Obs.": v["id"], "h (m)": v["h_m"], "Q observado (m³/s)": v["Q_m3s"]}
+            fila = {"Obs.": v["id"], f"{I('h')} (m)": F(v["h_m"]), f"{I('Q')}<sub>obs</sub> (m³/s)": F(v["Q_m3s"])}
             for m, f in curvas.items():
                 q = float(f(v["h_m"]))
-                fila[f"{m} (m³/s)"] = q
-                fila[f"Error {m} (m³/s)"] = q - v["Q_m3s"]
+                nom = m.split()[0]
+                fila[f"{I('Q̂')}<sub>{nom}</sub> (m³/s)"] = F(q)
+                fila[f"Error {I('e')}<sub>{nom}</sub> (m³/s)"] = F(q - v["Q_m3s"])
             filas.append(fila)
-        ui.tabla(pd.DataFrame(filas).round(5))
+        ui.tabla_html(filas, izquierda=True)
         met = []
         for m, f in curvas.items():
             mt = metricas_error([v["Q_m3s"] for v in vals], [float(f(v["h_m"])) for v in vals])
-            met.append({"Método": m, "n": mt["n"], "MAE (m³/s)": mt["MAE"], "RMSE (m³/s)": mt["RMSE"], "Error máximo (m³/s)": mt["error_max"]})
-        ui.tabla(pd.DataFrame(met).round(5))
+            met.append({"Método": m, I("n"): mt["n"], "MAE (m³/s)": F(mt["MAE"]), "RMSE (m³/s)": F(mt["RMSE"]),
+                        "Error máximo (m³/s)": F(mt["error_max"])})
+        ui.tabla_html(met, izquierda=True)
         if len(vals) < 3:
             st.caption(f"Solo hay {len(vals)} observación(es) de validación: MAE, RMSE y error máximo coinciden o son poco representativos. "
                        "No se simulan observaciones adicionales y **no se declara un método ganador** con tan pocos datos.")
@@ -138,8 +152,8 @@ def render() -> None:
     for m, f in curvas.items():
         mo = verificar_monotonia(f, hmin, hmax)
         mono.append({"Representación": m, "¿Creciente en todo el intervalo?": "sí" if mo["creciente"] else "NO",
-                     "Tramos decrecientes (malla de 2001 puntos)": mo["n_tramos_decrecientes"]})
-    ui.tabla(pd.DataFrame(mono))
+                     "Tramos decrecientes (malla de 2001 puntos)": str(mo["n_tramos_decrecientes"])})
+    ui.tabla_html(mono, izquierda=True)
     st.caption("La monotonía se comprueba numéricamente con estos datos; no se asume. Una curva de descarga físicamente debería ser creciente.")
 
     ui.grafica(graficas.fig_interpolacion(h, Q, curvas, h_c, preds["Newton"], vals, "Lagrange, Newton y spline sobre los mismos nodos"), "fig_comp")
