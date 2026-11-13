@@ -1,3 +1,4 @@
+
 """Pestaña 1 · Sistemas lineales: equilibrio estático de la armadura que soporta el canal."""
 from __future__ import annotations
 
@@ -17,6 +18,44 @@ from .. import notacion as nt
 from ..config import textos
 
 DESCRIPCION_ECUACION = {"Fx": "Σ Fx = 0", "Fy": "Σ Fy = 0"}
+
+
+# ----------------------------------------------------------------------------- notación de las tablas del sistema Ax = b
+def _num(v: float, n: int = 4) -> str:
+    """0.6402, 1, 0, −1: hasta n decimales, sin ceros sobrantes y con el signo menos tipográfico (−)."""
+    t = f"{float(v):.{n}f}".rstrip("0").rstrip(".")
+    if t in ("-0", ""):
+        t = "0"
+    return t.replace("-", "−")
+
+
+def _eje(e: str) -> str:
+    """'x' → <i>x</i>."""
+    return f"<i>{e}</i>"
+
+
+def _etq_incognita(nombre: str) -> str:
+    """Encabezado de columna: barra 'AB' → T<sub>AB</sub>; reacción 'Rx_A' → R<sub>x,A</sub>."""
+    if nombre.startswith("R") and "_" in nombre:
+        r, nudo = nombre.split("_", 1)
+        return f"<i>R</i><sub>{_eje(r[1:])},{nudo}</sub>"
+    return f"<i>T</i><sub>{nombre}</sub>"
+
+
+def _etq_ecuacion(ecuacion: str) -> str:
+    """'A: Fx' → 'A: Σ F<sub>x</sub> = 0' (nudo en texto, fuerza en cursiva con subíndice)."""
+    nudo, eje = ecuacion.split(":")
+    return f"{nudo}: Σ <i>F</i><sub>{_eje(eje[1:])}</sub> = 0"
+
+
+def _tabla_sistema(sis: dict) -> tuple[list[dict], list[dict]]:
+    """Filas (listas de dicts) de la matriz A y del vector b, con la misma notación y estilo que las tablas del tab 2."""
+    cols = [_etq_incognita(n) for n in sis["incognitas"]]
+    ecs = [_etq_ecuacion(e) for e in sis["ecuaciones"]]
+    filas_A = [{"Ecuación": ecs[i], **{c: _num(v) for c, v in zip(cols, fila)}} for i, fila in enumerate(sis["A"])]
+    col_b = "<b>b</b> = −<i>P</i><sub>ext</sub> (kN)"
+    filas_b = [{"Ecuación": ecs[i], col_b: _num(v)} for i, v in enumerate(sis["b"])]
+    return filas_A, filas_b
 EJEMPLOS = {
     "Caso 1 · 3×3 con pivote nulo (Clase 07)": ([[0, 2, 3], [4, 6, 7], [2, 1, 6]], [8, -3, 5]),
     "Caso 2 · 2×2 bien condicionado": ([[3, -2], [-1, 4]], [5, 15]),
@@ -117,14 +156,11 @@ def _armadura() -> None:
 
     st.markdown(r"#### Sistema de equilibrio $\mathbf{A}\mathbf{x}=\mathbf{b}$")
     cA, cB = st.columns([3, 2])
+    filas_A, filas_b = _tabla_sistema(sis)
     with cA:
-        etq = sis["incognitas"]
-        dfA = pd.DataFrame(sis["A"], columns=etq)
-        dfA.insert(0, "Ecuación", [f"{e.split(':')[0]}: {DESCRIPCION_ECUACION[e.split(':')[1]]}" for e in sis["ecuaciones"]])
-        ui.tabla(dfA.round(4))
+        ui.tabla_html(filas_A, izquierda=True)
     with cB:
-        dfb = pd.DataFrame({"Ecuación": dfA["Ecuación"], "b = −P_ext (kN)": sis["b"]})
-        ui.tabla(dfb.round(4))
+        ui.tabla_html(filas_b, izquierda=True)
         st.caption(r"Incógnitas $\mathbf{x}$: fuerzas axiales de las 7 barras (kN; **+ tracción, − compresión**) y 3 reacciones (kN). "
                    f"10 ecuaciones, 10 incógnitas, rango = {sis['rango']} → armadura **estáticamente determinada y estable**.")
 
@@ -236,5 +272,3 @@ def mostrar_gauss(g: dict, etiquetas: list[str], clave: str) -> None:
             ui.tabla(pd.DataFrame(M, columns=encab).round(4))
         st.markdown(r"**Sustitución regresiva** sobre la matriz triangular $[\mathbf{U}\mid\mathbf{c}]$ de la última etapa:")
         st.latex(r"x_n=\frac{c_n}{u_{nn}},\qquad x_i=\frac{c_i-\sum_{j=i+1}^{n}u_{ij}\,x_j}{u_{ii}},\quad i=n-1,\dots,1")
-
-
