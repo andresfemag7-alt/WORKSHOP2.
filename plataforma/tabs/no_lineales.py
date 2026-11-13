@@ -147,16 +147,29 @@ def render() -> None:
 
     st.markdown("**Comprobaciones hidráulicas**")
     lib = d.get("lib", {})
-    ui.tabla_html([
-        {"Comprobación": f"{yc} analítica = ({Qd}²/({I('g')}·{I('b')}²))<sup>1/3</sup> [m]", "Valor": f"{comp['y_analitica_m']:.8f}",
-         "Diferencia": f"con Newton: {ui.cient(comp['diferencia_con_analitica_m'], 1)} m"},
-        {"Comprobación": f"Energía específica {I('E')} = {I('y')} + {I('V')}²/2{I('g')} [m]", "Valor": f"{comp['energia_especifica_m']:.6f}",
-         "Diferencia": f"con 1.5·{yc}: {ui.cient(comp['energia_especifica_m'] - comp['energia_minima_teorica_m'], 1)} m"},
-        {"Comprobación": f"Residual de continuidad {I('b')}·{I('y')}·{I('V')} − {Qd} [m³/s]", "Valor": f"{ui.cient(comp['residual_Q_m3s'], 1)}",
-         "Diferencia": "—"},
-        {"Comprobación": lib.get("libreria_usada", "scipy.optimize.root"), "Valor": f"{I('y')} = {lib['x_libreria'][0]:.8f} m" if lib else "—",
-         "Diferencia": f"con Newton: {ui.cient(lib['max_diferencia_absoluta'], 1)}" if lib else "—"},
-    ])
+    L = ui.cient_latex
+    dif_e = comp["energia_especifica_m"] - comp["energia_minima_teorica_m"]
+    ui.tabla_latex(
+        ["Comprobación", "Fórmula", "Valor", "Diferencia"],
+        [
+            ["Profundidad crítica analítica",
+             r"$y_c=\left(\dfrac{Q_d^{2}}{g\,b^{2}}\right)^{1/3}$",
+             f"${comp['y_analitica_m']:.8f}\\ \\mathrm{{m}}$",
+             f"con Newton: ${L(comp['diferencia_con_analitica_m'])}\\ \\mathrm{{m}}$"],
+            ["Energía específica",
+             r"$E=y+\dfrac{V^{2}}{2g}$",
+             f"${comp['energia_especifica_m']:.6f}\\ \\mathrm{{m}}$",
+             f"con $1.5\\,y_c$: ${L(dif_e)}\\ \\mathrm{{m}}$"],
+            ["Residual de continuidad",
+             r"$b\,y\,V-Q_d$",
+             f"${L(comp['residual_Q_m3s'])}\\ \\mathrm{{m^{{3}}/s}}$",
+             "—"],
+            [f"`{lib.get('libreria_usada', 'scipy.optimize.root')}`",
+             r"$\mathbf{F}(y,V)=\mathbf{0}$",
+             f"$y={lib['x_libreria'][0]:.8f}\\ \\mathrm{{m}}$" if lib else "—",
+             f"con Newton: ${L(lib['max_diferencia_absoluta'])}$" if lib else "—"],
+        ],
+        clave="tabla_comprobaciones")
 
     # Gráficas en ancho completo y una debajo de otra: en media columna los títulos de las subgráficas se pisaban.
     st.markdown("#### Gráficas")

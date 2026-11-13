@@ -137,6 +137,28 @@ def tabla_html(filas: list[dict], izquierda: bool = False) -> None:
     st.markdown(h + "</table>", unsafe_allow_html=True)
 
 
+def cient_latex(x, n: int = 1) -> str:
+    """Notación científica para LaTeX: 2.2e-16 -> 2.2\\times10^{-16} (el cero se muestra como 0)."""
+    if x is None:
+        return "—"
+    x = float(x)
+    if x == 0:
+        return "0"
+    mant, exp = f"{x:.{n}e}".split("e")
+    return f"{mant}\\times10^{{{int(exp)}}}"
+
+
+def tabla_latex(columnas: list[str], filas: list[list[str]], clave: str) -> None:
+    """Tabla de comprobaciones con fórmulas en LaTeX real (KaTeX), todo justificado a la izquierda.
+    Cada celda es markdown y admite $...$. Va dentro de un contenedor con ``key`` para aplicarle estilo propio
+    (.st-key-<clave> en tema.CSS) sin tocar otras tablas de la app."""
+    md = "| " + " | ".join(columnas) + " |\n| " + " | ".join([":---"] * len(columnas)) + " |\n"
+    for f in filas:
+        md += "| " + " | ".join(str(c).replace("|", "\\|") for c in f) + " |\n"
+    with st.container(key=clave):
+        st.markdown(md)
+
+
 def tabla(df: pd.DataFrame, **kw) -> None:
     st.dataframe(df, hide_index=kw.pop("hide_index", True), width="stretch", **kw)
 

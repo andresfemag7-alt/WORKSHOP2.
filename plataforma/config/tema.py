@@ -88,6 +88,12 @@ table.vars td.n {{ text-align:right; font-variant-numeric: tabular-nums; }}
 .caja-res {{ background:#EAF4EC; border:1px solid #9CC9A3; border-radius:6px; padding:.6rem 1rem; margin:.4rem 0; }}
 .caja-aviso {{ background:#FFF6E0; border:1px solid #E0C070; border-radius:6px; padding:.6rem 1rem; margin:.4rem 0; }}
 .caja-error {{ background:#FDECEA; border:1px solid #E5A19B; border-radius:6px; padding:.6rem 1rem; margin:.4rem 0; }}
+.st-key-tabla_comprobaciones table {{ border-collapse: collapse; width:100%; font-size:.92rem; background:{PALETA['fondo_tarjeta']}; }}
+.st-key-tabla_comprobaciones th {{ text-align:left !important; background:#E6EEF3; padding:8px 12px; border:0; border-bottom:2px solid {PALETA['borde']}; color:{PALETA['texto']}; }}
+.st-key-tabla_comprobaciones td {{ text-align:left !important; padding:10px 12px; border:0; border-bottom:1px solid {PALETA['borde']}; vertical-align:middle; }}
+.st-key-tabla_comprobaciones td:nth-child(2) .katex {{ font-size:1.12em; }}
+.st-key-tabla_comprobaciones td:nth-child(3) {{ font-variant-numeric: tabular-nums; }}
+.st-key-tabla_comprobaciones code {{ font-size:.85em; }}
 @media (max-width: 900px) {{ .app-meta {{ grid-template-columns: 1fr; }} }}
 @media (max-width: 640px) {{ .app-titulo {{ font-size: 1.2rem; }} table.vars {{ font-size:.8rem; }} }}
 </style>
