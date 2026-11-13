@@ -98,10 +98,14 @@ def render() -> None:
                     cd = ex["despues"]["coeficientes_newton"]
                     ui.tabla_html([{I("k"): k, f"{I('a')}<sub>k</sub> antes": F(ca[k], 8) if k < len(ca) else "—",
                                     f"{I('a')}<sub>k</sub> después": F(cd[k], 8)} for k in range(len(cd))], izquierda=True)
-                    st.markdown(f"- Coeficientes previos conservados: **{'sí' if ex['coeficientes_previos_conservados'] else 'NO'}**.\n"
-                                f"- Coeficiente nuevo a_{len(cd) - 1} = {ex['coeficiente_nuevo']:.6g}.\n"
-                                f"- Estimación en h = {h_c:.4f} m: {ex['antes']['valor_evaluado']:.6f} → {ex['despues']['valor_evaluado']:.6f} m³/s "
-                                f"(corrección {ex['correccion_en_x_eval']:+.4e}).")
+                    n_ = len(cd) - 1
+                    corr = ui.cient_latex(ex["correccion_en_x_eval"], 4)
+                    corr = corr if corr.startswith("-") else "+" + corr
+                    st.markdown(f"- Coeficientes previos $a_0,\\dots,a_{{{n_ - 1}}}$ conservados: **{'sí' if ex['coeficientes_previos_conservados'] else 'NO'}**.\n"
+                                f"- Coeficiente nuevo $a_{{{n_}}} = {ex['coeficiente_nuevo']:.6g}$.\n"
+                                f"- Estimación en $h = {h_c:.4f}\\ \\mathrm{{m}}$: "
+                                f"${ex['antes']['valor_evaluado']:.6f} \\to {ex['despues']['valor_evaluado']:.6f}\\ \\mathrm{{m^3/s}}$ "
+                                f"(corrección ${corr}\\ \\mathrm{{m^3/s}}$).")
                     if ex["despues"]["extrapolando"]:
                         st.warning(ex["despues"]["advertencia_extrapolacion"])
 
