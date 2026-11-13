@@ -1,4 +1,3 @@
-
 """Pestaña 1 · Sistemas lineales: equilibrio estático de la armadura que soporta el canal."""
 from __future__ import annotations
 
@@ -15,6 +14,7 @@ from modulos.sistemas_lineales import comparar_con_libreria_lineal, gauss_pivote
 from .. import componentes as ui
 from .. import estado, graficas
 from .. import notacion as nt
+from .. import simbolos
 from ..config import textos
 
 DESCRIPCION_ECUACION = {"Fx": "Σ Fx = 0", "Fy": "Σ Fy = 0"}
@@ -46,6 +46,21 @@ def _etq_ecuacion(ecuacion: str) -> str:
     """'A: Fx' → 'A: Σ F<sub>x</sub> = 0' (nudo en texto, fuerza en cursiva con subíndice)."""
     nudo, eje = ecuacion.split(":")
     return f"{nudo}: Σ <i>F</i><sub>{_eje(eje[1:])}</sub> = 0"
+
+
+def _cient_html(x, n: int = 2) -> str:
+    """1.42e-14 → 1.42×10<sup>−14</sup> (el cero se muestra como 0)."""
+    x = float(x)
+    if x == 0:
+        return "0"
+    mant, exp = f"{x:.{n}e}".split("e")
+    return f"{mant.replace('-', '−')}×10<sup>{str(int(exp)).replace('-', '−')}</sup>"
+
+
+def _lectura(texto: str) -> str:
+    """Texto de la columna «Lectura»: κ en cursiva y notación matemática de los mensajes de los módulos."""
+    t = simbolos.bonito_html(texto)
+    return t.replace("kappa(A)", "<i>κ</i>(<b>A</b>)").replace("kappa", "<i>κ</i>")
 
 
 def _tabla_sistema(sis: dict) -> tuple[list[dict], list[dict]]:
@@ -167,13 +182,15 @@ def _armadura() -> None:
     mostrar_gauss(r["gauss"], sis["incognitas"], "arm")
 
     st.markdown("#### Resultados")
-    barras = pd.DataFrame([{"Barra": n, "Nudos": f"{a}–{b_}", "Longitud (m)": sis["longitudes"][n],
-                            "Fuerza axial (kN)": r["fuerzas_kN"][n], "Estado": r["estado_barras"][n]} for n, a, b_ in sis["barras"]])
+    col_T = "Fuerza axial <i>T</i> (kN)"
+    barras = [{"Barra": n, "Nudos": f"{a}–{b_}", "Longitud <i>L</i> (m)": _num(sis["longitudes"][n]),
+               col_T: _num(r["fuerzas_kN"][n]), "Estado": r["estado_barras"][n]} for n, a, b_ in sis["barras"]]
     c1, c2 = st.columns([3, 2])
     with c1:
-        ui.tabla(barras.round(4))
+        ui.tabla_html(barras, izquierda=True)
     with c2:
-        ui.tabla(pd.DataFrame([{"Reacción": k, "Valor (kN)": v} for k, v in r["reacciones_kN"].items()]).round(4))
+        ui.tabla_html([{"Reacción": _etq_incognita(k), "Valor (kN)": _num(v)} for k, v in r["reacciones_kN"].items()],
+                      izquierda=True)
     ui.grafica(graficas.fig_armadura(sis, r), "fig_armadura")
 
     g = r["gauss"]
@@ -182,14 +199,21 @@ def _armadura() -> None:
     ref = es.solucion_analitica_warren(L, H, W)
     dif = max(abs(r["fuerzas_kN"][k] - ref[k]) for k in r["fuerzas_kN"])
     comp = comparar_con_libreria_lineal(sis["A"], sis["b"], g["x"])
-    ui.tabla(pd.DataFrame([
-        {"Comprobación": "Residual ‖A·x − b‖∞ (kN)", "Valor": ui.cient(g['norma_residuo_inf'], 2), "Lectura": "≈ 0: se satisface cada ecuación de equilibrio"},
-        {"Comprobación": "Σ Fx, Σ Fy global (kN)", "Valor": f"{ui.cient(eq['suma_Fx_kN'], 1)}, {ui.cient(eq['suma_Fy_kN'], 1)}", "Lectura": "Cargas + reacciones en equilibrio"},
-        {"Comprobación": "Σ M respecto al origen (kN·m)", "Valor": ui.cient(eq['suma_M_kNm'], 1), "Lectura": "Equilibrio de momentos"},
-        {"Comprobación": "Máx |x − solución analítica| (kN)", "Valor": ui.cient(dif, 1), "Lectura": "Método de los nudos a mano (simetría)"},
-        {"Comprobación": f"Máx |x − {comp['libreria_usada']}|", "Valor": ui.cient(comp['max_diferencia_absoluta'], 1), "Lectura": comp["interpretacion"]},
-        {"Comprobación": "κ₂(A)", "Valor": ui.cient(g['condicion_A'], 2), "Lectura": f"{g['estado_condicion']}. {g['advertencia_condicion']}"},
-    ]))
+    ui.tabla_html([
+        {"Comprobación": "Residual ‖<b>A</b>·<b>x</b> − <b>b</b>‖<sub>∞</sub> (kN)", "Valor": _cient_html(g['norma_residuo_inf'], 2),
+         "Lectura": "≈ 0: se satisface cada ecuación de equilibrio"},
+        {"Comprobación": "Σ <i>F</i><sub><i>x</i></sub>, Σ <i>F</i><sub><i>y</i></sub> global (kN)",
+         "Valor": f"{_cient_html(eq['suma_Fx_kN'], 1)}, {_cient_html(eq['suma_Fy_kN'], 1)}",
+         "Lectura": "Cargas + reacciones en equilibrio"},
+        {"Comprobación": "Σ <i>M</i> respecto al origen (kN·m)", "Valor": _cient_html(eq['suma_M_kNm'], 1),
+         "Lectura": "Equilibrio de momentos"},
+        {"Comprobación": "Máx |<b>x</b> − solución analítica| (kN)", "Valor": _cient_html(dif, 1),
+         "Lectura": "Método de los nudos a mano (simetría)"},
+        {"Comprobación": f"Máx |<b>x</b> − {comp['libreria_usada']}|", "Valor": _cient_html(comp['max_diferencia_absoluta'], 1),
+         "Lectura": _lectura(comp["interpretacion"])},
+        {"Comprobación": "<i>κ</i><sub>2</sub>(<b>A</b>)", "Valor": _cient_html(g['condicion_A'], 2),
+         "Lectura": _lectura(f"{g['estado_condicion']}. {g['advertencia_condicion']}")},
+    ], izquierda=True)
     st.markdown("#### Interpretación")
     ab, bc = r["fuerzas_kN"]["AB"], r["fuerzas_kN"]["DE"]
     st.markdown(
