@@ -147,12 +147,12 @@ def _armadura() -> None:
     dif = max(abs(r["fuerzas_kN"][k] - ref[k]) for k in r["fuerzas_kN"])
     comp = comparar_con_libreria_lineal(sis["A"], sis["b"], g["x"])
     ui.tabla(pd.DataFrame([
-        {"Comprobación": "Residual ‖A·x − b‖∞ (kN)", "Valor": f"{g['norma_residuo_inf']:.2e}", "Lectura": "≈ 0: se satisface cada ecuación de equilibrio"},
-        {"Comprobación": "Σ Fx, Σ Fy global (kN)", "Valor": f"{eq['suma_Fx_kN']:.1e}, {eq['suma_Fy_kN']:.1e}", "Lectura": "Cargas + reacciones en equilibrio"},
-        {"Comprobación": "Σ M respecto al origen (kN·m)", "Valor": f"{eq['suma_M_kNm']:.1e}", "Lectura": "Equilibrio de momentos"},
-        {"Comprobación": "Máx |x − solución analítica| (kN)", "Valor": f"{dif:.1e}", "Lectura": "Método de los nudos a mano (simetría)"},
-        {"Comprobación": f"Máx |x − {comp['libreria_usada']}|", "Valor": f"{comp['max_diferencia_absoluta']:.1e}", "Lectura": comp["interpretacion"]},
-        {"Comprobación": "κ₂(A)", "Valor": f"{g['condicion_A']:.2e}", "Lectura": f"{g['estado_condicion']}. {g['advertencia_condicion']}"},
+        {"Comprobación": "Residual ‖A·x − b‖∞ (kN)", "Valor": ui.cient(g['norma_residuo_inf'], 2), "Lectura": "≈ 0: se satisface cada ecuación de equilibrio"},
+        {"Comprobación": "Σ Fx, Σ Fy global (kN)", "Valor": f"{ui.cient(eq['suma_Fx_kN'], 1)}, {ui.cient(eq['suma_Fy_kN'], 1)}", "Lectura": "Cargas + reacciones en equilibrio"},
+        {"Comprobación": "Σ M respecto al origen (kN·m)", "Valor": ui.cient(eq['suma_M_kNm'], 1), "Lectura": "Equilibrio de momentos"},
+        {"Comprobación": "Máx |x − solución analítica| (kN)", "Valor": ui.cient(dif, 1), "Lectura": "Método de los nudos a mano (simetría)"},
+        {"Comprobación": f"Máx |x − {comp['libreria_usada']}|", "Valor": ui.cient(comp['max_diferencia_absoluta'], 1), "Lectura": comp["interpretacion"]},
+        {"Comprobación": "κ₂(A)", "Valor": ui.cient(g['condicion_A'], 2), "Lectura": f"{g['estado_condicion']}. {g['advertencia_condicion']}"},
     ]))
     st.markdown("#### Interpretación")
     ab, bc = r["fuerzas_kN"]["AB"], r["fuerzas_kN"]["DE"]
