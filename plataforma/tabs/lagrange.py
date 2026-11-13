@@ -71,7 +71,7 @@ def render() -> None:
     hc = f"({I('h')}<sub>c</sub>)"
     _f = lambda x: ui.fmt(x, 4).replace("-", "−")
     ui.tabla_html([{"<i>i</i>": k, f"{hi} (m)": _f(h[k]), f"{Qi} (m³/s)": _f(Q[k]), f"{Li_}{hc}": _f(Li[k]),
-                    f"{Qi}·{Li_}{hc} (m³/s)": _f(Q[k] * Li[k])} for k in range(len(h))])
+                    f"{Qi}·{Li_}{hc} (m³/s)": _f(Q[k] * Li[k])} for k in range(len(h))], izquierda=True)
     st.caption(rf"Comprobación: $\sum_i L_i(h_c) = {sum(Li):.10f}$ (debe ser 1) · $\sum_i Q_i\,L_i(h_c) = {Qhat:.6f}$ m³/s $= P(h_c)$.")
     with st.expander("Expresiones algebraicas (variable $h$ en metros)"):
         for i, b in enumerate(r["bases_L"]):
@@ -83,7 +83,7 @@ def render() -> None:
     st.markdown("**Reproducción de los nodos**")
     rn = r["reproduccion_nodos"]
     ui.tabla_html([{f"{hi} (m)": _f(d_["nodo_x"]), f"{Qi} (m³/s)": _f(d_["y_real"]), f"{I('P')}({hi})": _f(d_["y_interp"]),
-                    f"|{I('P')}({hi}) − {Qi}|": ui.cient(d_["error_absoluto"], 1)} for d_ in rn["detalles"]])
+                    f"|{I('P')}({hi}) − {Qi}|": ui.cient(d_["error_absoluto"], 1)} for d_ in rn["detalles"]], izquierda=True)
     st.caption(rn["conclusion"])
     comp = r.get("comparacion_libreria") or {}
     if "coincidencia" in comp:
@@ -103,15 +103,19 @@ def render() -> None:
             q_hat = float(r["P_poly"](v["h_m"]))
             y_obs.append(v["Q_m3s"])
             y_hat.append(q_hat)
-            filas.append({"Obs.": v["id"], "h (m)": v["h_m"], "Q observado (m³/s)": v["Q_m3s"], "Q Lagrange (m³/s)": q_hat,
-                          "Error (m³/s)": q_hat - v["Q_m3s"], "Error relativo (%)": 100 * (q_hat - v["Q_m3s"]) / v["Q_m3s"],
+            e = q_hat - v["Q_m3s"]
+            F = lambda x: f"{x:.5f}".replace("-", "−")
+            filas.append({"Obs.": v["id"], "<i>h</i> (m)": F(v["h_m"]), "<i>Q</i><sub>obs</sub> (m³/s)": F(v["Q_m3s"]),
+                          "<i>Q̂</i><sub>Lagrange</sub> (m³/s)": F(q_hat), "Error <i>e</i> (m³/s)": F(e),
+                          "Error relativo (%)": F(100 * e / v["Q_m3s"]),
                           "Dentro del intervalo": "sí" if hmin <= v["h_m"] <= hmax else "NO (extrapolación)"})
-        ui.tabla(pd.DataFrame(filas).round(5))
+        ui.tabla_html(filas, izquierda=True)
         for v in vals:
             if v.get("fecha"):
                 st.caption(f"{v['id']}: {v['nivel_ft']} ft / {v['caudal_cfs']} cfs · {v['fecha']} · {v['calificador']}. {v['tipo']}")
         mt = metricas_error(y_obs, y_hat)
-        ui.tabla(pd.DataFrame([{"n": mt["n"], "MAE (m³/s)": mt["MAE"], "RMSE (m³/s)": mt["RMSE"], "Error máximo (m³/s)": mt["error_max"]}]).round(5))
+        ui.tabla_html([{"<i>n</i>": mt["n"], "MAE (m³/s)": f"{mt['MAE']:.5f}", "RMSE (m³/s)": f"{mt['RMSE']:.5f}",
+                        "Error máximo (m³/s)": f"{mt['error_max']:.5f}"}], izquierda=True)
         if mt["nota"]:
             st.caption(mt["nota"])
     if datos.get("pendiente"):

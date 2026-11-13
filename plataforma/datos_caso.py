@@ -22,11 +22,9 @@ def selector_datos() -> dict:
     out = {"ok": False, "modo": modo, "mensajes": []}
     if modo == MODO_CASO:
         nodos = dr.nodos_construccion()
-        df = pd.DataFrame({
-            "Nodo": [r["id"] for r in nodos], "Nivel (ft)": [r["nivel_ft"] for r in nodos], "Caudal (cfs)": [r["caudal_cfs"] for r in nodos],
-            "h (m)": [r["h_m"] for r in nodos], "Q (m³/s)": [r["Q_m3s"] for r in nodos]})
-        ui.tabla(df, column_config={"h (m)": st.column_config.NumberColumn(format="%.5f"), "Q (m³/s)": st.column_config.NumberColumn(format="%.4f")})
-        st.caption("Conversión con factores exactos: h = ft × 0.3048; Q = cfs × 0.028316846592. Se conserva la precisión completa "
+        ui.tabla_html([{"Nodo": r["id"], "Nivel (ft)": f"{r['nivel_ft']:g}", "Caudal (cfs)": f"{r['caudal_cfs']:g}",
+                        "<i>h</i> (m)": f"{r['h_m']:.5f}", "<i>Q</i> (m³/s)": f"{r['Q_m3s']:.4f}"} for r in nodos], izquierda=True)
+        st.caption("Conversión con factores exactos: $h = \\mathrm{ft}\\times 0.3048$; $Q = \\mathrm{cfs}\\times 0.028316846592$. Se conserva la precisión completa "
                    "(la propuesta original redondeaba a 3 y 2 decimales: 1.829 m, 84.95 m³/s…).")
         out.update(ok=True, h=[r["h_m"] for r in nodos], Q=[r["Q_m3s"] for r in nodos],
                    validacion=[dr.observacion_validacion()], pendiente=dr.observacion_pendiente(), procedencia="preliminar")
